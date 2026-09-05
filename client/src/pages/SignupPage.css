@@ -1,0 +1,144 @@
+.signup-page {
+  min-height: 100vh;
+  display: flex;
+  background: linear-gradient(135deg, #F5F0E8 0%, #EDE8DF 50%, #E8E2D8 100%);
+  overflow-x: hidden;
+}
+
+.signup-left {
+  flex: 0 0 420px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 56px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.signup-headline {
+  font-size: clamp(32px, 3.5vw, 48px);
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+  margin-top: 32px;
+  letter-spacing: -1px;
+}
+
+.signup-stats {
+  display: flex;
+  gap: 28px;
+  margin-top: 40px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.stat-num {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--gold);
+}
+
+.stat span:last-child {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.signup-right {
+  flex: 1;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 25px 30px 30px 0;
+  overflow-y: auto;
+}
+
+.signup-card {
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: var(--radius-xl);
+  padding: 20px 40px;
+  width: 220%;
+  max-width: 860px;
+  box-shadow: 10px 20px 30px rgba(0, 0, 0, 0.1);
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.add-skill-btn {
+  background: var(--gold-light);
+  color: var(--gold-dark);
+  border-radius: 8px;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  transition: var(--transition);
+}
+
+.add-skill-btn:hover {
+  background: var(--gold);
+  color: white;
+}
+
+.skill-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.skill-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  background: var(--gold-light);
+  color: var(--gold-dark);
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.skill-chip button {
+  background: none;
+  color: var(--gold-dark);
+  display: flex;
+  align-items: center;
+  opacity: 0.7;
+  transition: var(--transition);
+}
+
+.skill-chip button:hover {
+  opacity: 1;
+}
+
+@media (max-width: 900px) {
+  .signup-left {
+    display: none;
+  }
+
+  .signup-right {
+    padding: 24px;
+  }
+
+  .form-grid-2 {
+    grid-template-columns: 1fr;
+  }
+}

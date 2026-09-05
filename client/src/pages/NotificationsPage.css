@@ -1,0 +1,837 @@
+.notif-page-wrapper {
+  min-height: 100vh;
+  background: var(--bg);
+  padding-top: 115px;
+  padding-bottom: 60px;
+}
+
+/* Full Width Container matching Navbar */
+.notif-container {
+  width: min(94%, 1380px);
+  margin: 0 auto;
+  padding: 0;
+}
+
+.notif-header {
+  margin-bottom: 28px;
+}
+
+.notif-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 99px;
+  background: rgba(245, 166, 35, 0.12);
+  color: var(--gold-dark);
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.notif-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  letter-spacing: -0.5px;
+}
+
+.notif-count-chip {
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 99px;
+  background: var(--gold-light);
+  color: var(--gold-dark);
+  vertical-align: middle;
+}
+
+.notif-subtitle {
+  color: var(--text-secondary);
+  font-size: 15px;
+  margin-top: 4px;
+}
+
+.notif-read-all-btn {
+  padding: 10px 20px;
+  font-size: 13px;
+  border-radius: 14px;
+}
+
+/* 2-Column Layout Grid */
+.notif-layout-grid {
+  display: grid;
+  grid-template-columns: 310px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+/* Sidebar Cards */
+.notif-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.notif-stats-card,
+.notif-filter-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.sidebar-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  letter-spacing: -0.2px;
+}
+
+.stats-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stat-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  text-align: left;
+}
+
+.stat-box .stat-num {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--gold-dark);
+  min-width: 24px;
+}
+
+.stat-box .stat-lbl {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: none;
+}
+
+/* Vertical Filters */
+.vertical-filter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.v-filter-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.v-filter-item:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--text-primary);
+}
+
+.v-filter-item.active {
+  background: var(--gold-light);
+  color: var(--gold-dark);
+}
+
+.v-filter-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 99px;
+  background: rgba(0, 0, 0, 0.06);
+  color: var(--text-secondary);
+}
+
+.v-filter-badge.gold {
+  background: var(--gold);
+  color: white;
+}
+
+.full-w-btn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 16px;
+  font-size: 13px;
+}
+
+/* Main Content Area */
+.notif-main-content {
+  width: 100%;
+}
+
+.notif-stacks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.apple-stack-group {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 24px;
+  padding: 20px 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.apple-stack-group:hover {
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.07);
+}
+
+.stack-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding-bottom: 16px;
+  user-select: none;
+}
+
+.stack-title-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.stack-icon-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.stack-category-label {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stack-items-count {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.stack-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stack-unread-pill {
+  background: var(--gold);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 99px;
+}
+
+.stack-toggle-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+}
+
+.stack-header:hover .stack-toggle-btn {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--text-primary);
+}
+
+/* 3D Collapsed Stack Preview */
+.collapsed-3d-stack {
+  position: relative;
+  cursor: pointer;
+  padding-bottom: 14px;
+}
+
+.apple-notif-card {
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  padding: 20px 24px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.apple-notif-card.unread {
+  border-color: rgba(245, 166, 35, 0.4);
+  box-shadow: 0 4px 20px rgba(245, 166, 35, 0.08);
+}
+
+.top-card {
+  position: relative;
+  z-index: 3;
+}
+
+.stack-layer {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  backdrop-filter: blur(10px);
+}
+
+.layer-1 {
+  bottom: 4px;
+  z-index: 2;
+  transform: translateY(6px) scale(0.98);
+  opacity: 0.85;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.layer-2 {
+  bottom: -2px;
+  z-index: 1;
+  transform: translateY(12px) scale(0.96);
+  opacity: 0.6;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+.collapsed-3d-stack:hover .top-card {
+  transform: translateY(-2px);
+}
+
+.collapsed-3d-stack:hover .layer-1 {
+  transform: translateY(8px) scale(0.985);
+}
+
+.collapsed-3d-stack:hover .layer-2 {
+  transform: translateY(16px) scale(0.965);
+}
+
+/* Expanded Cards List */
+.expanded-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: expandSpring 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes expandSpring {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.expanded-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* Card Content Details */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-name {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.notif-type-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gold-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.notif-time {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.blue-unread-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+}
+
+.card-msg {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 12px 0 14px 0;
+}
+
+.card-footer {
+  padding-top: 10px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.card-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 10px;
+  background: var(--gold-light);
+  color: var(--gold-dark);
+  font-size: 12.5px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.card-action-btn:hover {
+  background: var(--gold);
+  color: #fff;
+}
+
+.card-decline-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: 10px;
+  background: rgba(244, 67, 54, 0.08);
+  color: #C62828;
+  border: 1px solid rgba(244, 67, 54, 0.2);
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.card-decline-btn:hover {
+  background: rgba(244, 67, 54, 0.16);
+}
+
+.stack-peek-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.mark-single-read-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.mark-single-read-btn:hover {
+  color: var(--text-primary);
+}
+
+/* Empty State */
+.empty-notif-state {
+  text-align: center;
+  padding: 70px 30px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 24px;
+  border: 1px dashed var(--border);
+}
+
+.empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--gold-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px auto;
+}
+
+@media (max-width: 900px) {
+  .notif-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ─── New Notification Card Styles ─── */
+
+/* Header actions row */
+.notif-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* v-filter-badges: stacked badge row */
+.v-filter-badges {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.v-filter-badge.red {
+  background: rgba(244, 67, 54, 0.12);
+  color: #C62828;
+}
+
+/* Notification cards list */
+.notif-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Section label (Unread / Earlier) */
+.notif-section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 0 4px;
+}
+
+.notif-section-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.notif-section-dot.unread-dot { background: #F5A623; }
+.notif-section-dot.read-dot   { background: #ccc; }
+
+.notif-inline-mark-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--gold-dark);
+  margin-left: auto;
+  padding: 3px 8px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+
+.notif-inline-mark-all:hover { background: var(--gold-light); }
+
+/* Base notification card */
+.notif-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+}
+
+.notif-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.07);
+}
+
+/* Unread card: golden left strip + warm border */
+.notif-card--unread {
+  border-color: rgba(245, 166, 35, 0.35);
+  background: linear-gradient(to right, rgba(245,166,35,0.03), #ffffff 60px);
+}
+
+/* Left colored strip for unread */
+.notif-unread-strip {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 18px 0 0 18px;
+}
+
+/* Card inner layout */
+.notif-card-body {
+  display: flex;
+  gap: 14px;
+  padding: 18px 20px;
+  align-items: flex-start;
+}
+
+/* Avatar */
+.notif-avatar {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Card content */
+.notif-card-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.notif-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 6px;
+}
+
+.notif-card-name {
+  font-size: 14.5px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-right: 8px;
+}
+
+.notif-card-type {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.notif-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.notif-card-time {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Unread blue dot */
+.notif-blue-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #F5A623;
+  flex-shrink: 0;
+}
+
+/* Message text */
+.notif-card-msg {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0 0 14px 0;
+}
+
+/* Card action row */
+.notif-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 10px;
+  border-top: 1px solid rgba(0,0,0,0.05);
+}
+
+.notif-card-actions-left  { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.notif-card-actions-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+/* Action buttons */
+.notif-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 12.5px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.notif-action-primary {
+  background: var(--gold-light);
+  color: var(--gold-dark);
+}
+.notif-action-primary:hover { background: var(--gold); color: #fff; }
+
+.notif-action-accept {
+  background: rgba(76, 175, 80, 0.12);
+  color: #2E7D32;
+  border: 1px solid rgba(76, 175, 80, 0.25);
+}
+.notif-action-accept:hover {
+  background: #4CAF50;
+  color: #fff;
+}
+
+.notif-action-decline {
+  background: rgba(244, 67, 54, 0.08);
+  color: #C62828;
+  border: 1px solid rgba(244, 67, 54, 0.2);
+}
+.notif-action-decline:hover { background: rgba(244, 67, 54, 0.16); }
+
+.notif-action-ghost {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--text-secondary);
+}
+.notif-action-ghost:hover { background: rgba(0, 0, 0, 0.08); color: var(--text-primary); }
+
+/* Icon-only small buttons */
+.notif-icon-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(0,0,0,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
+}
+.notif-icon-btn:hover { background: rgba(0,0,0,0.09); color: var(--text-primary); }
+.notif-icon-btn.notif-icon-delete:hover { background: rgba(244,67,54,0.1); color: #C62828; }
+
+/* Skeleton loading placeholders */
+.notif-card-skeleton {
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.skeleton-avatar {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s infinite;
+  flex-shrink: 0;
+}
+
+.skeleton-line {
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s infinite;
+}
+
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Spinning refresh icon */
+.spin-icon {
+  animation: spin-anim 0.9s linear infinite;
+}
+@keyframes spin-anim { to { transform: rotate(360deg); } }
+
+/* Spinner gold (for declined loading) */
+.spinner-gold {
+  width: 36px;
+  height: 36px;
+  border: 3px solid rgba(245, 166, 35, 0.25);
+  border-top-color: #F5A623;
+  border-radius: 50%;
+  animation: spin-anim 0.8s linear infinite;
+}
+
+/* Refresh button */
+.notif-refresh-btn {
+  font-size: 13px;
+  padding: 8px 16px;
+}
+
+/* Declined in-page section */
+.declined-inpage-section {
+  animation: fadeIn 0.3s ease;
+}
+
+@media (max-width: 640px) {
+  .notif-card-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .notif-card-actions-right {
+    align-self: flex-end;
+  }
+  .notif-header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

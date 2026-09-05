@@ -1,0 +1,260 @@
+/* ====================================================
+   DeclinedRequestsPage.css — Apple Glassmorphism Design
+   ==================================================== */
+
+.declined-page-wrapper {
+  min-height: 100vh;
+  background: var(--bg);
+  padding-top: 100px;
+  padding-bottom: 80px;
+}
+
+.declined-container {
+  width: min(94%, 1280px);
+  margin: 0 auto;
+}
+
+.declined-header {
+  margin-bottom: 28px;
+}
+
+.declined-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  border-radius: 99px;
+  background: rgba(244, 67, 54, 0.08);
+  color: #C62828;
+  border: 1px solid rgba(244, 67, 54, 0.2);
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.declined-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+  margin: 0;
+}
+
+.declined-subtitle {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  margin: 4px 0 0 0;
+}
+
+.declined-count-chip {
+  font-size: 13px;
+  font-weight: 800;
+  padding: 6px 16px;
+  border-radius: 99px;
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+}
+
+.loading-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 50vh;
+  gap: 14px;
+  color: var(--text-muted);
+}
+
+/* Empty State */
+.empty-declined-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 60px 30px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px dashed var(--border);
+  border-radius: 28px;
+  max-width: 540px;
+  margin: 40px auto;
+}
+
+.empty-icon-box {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--gold-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.empty-declined-state h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 6px 0;
+}
+
+.empty-declined-state p {
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Grid Layout */
+.declined-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 20px;
+}
+
+.declined-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 22px;
+  padding: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.declined-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.06);
+}
+
+.retention-header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  padding-bottom: 10px;
+}
+
+.retention-timer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: rgba(244, 67, 54, 0.1);
+  color: #C62828;
+  font-size: 11.5px;
+  font-weight: 800;
+}
+
+.declined-date-label {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.declined-cand-info {
+  align-items: flex-start;
+}
+
+.cand-left-group {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.cand-avatar-lg {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold), #f7c15d);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 800;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.cand-avatar-lg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cand-name-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.cand-tagline-sub {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin: 2px 0 6px 0;
+}
+
+.proj-title-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold-dark);
+  background: rgba(245, 166, 35, 0.1);
+  padding: 2px 8px;
+  border-radius: 99px;
+  margin: 0;
+}
+
+.cand-msg-preview {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  font-style: italic;
+  margin: 0;
+  background: rgba(0, 0, 0, 0.02);
+  padding: 8px 12px;
+  border-radius: 10px;
+  border-left: 3px solid var(--gold-light);
+}
+
+.declined-skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.skill-mini-chip {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--text-secondary);
+}
+
+.declined-card-actions {
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.view-prof-btn {
+  font-size: 12px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.reevaluate-btn {
+  font-size: 12px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
