@@ -66,4 +66,45 @@ const uploadFile = async (req, res) => {
   }
 };
 
-module.exports = { getMessages, uploadFile };
+// @desc    Send a text message in project chat
+// @route   POST /api/chat/:projectId/messages
+const createMessage = async (req, res) => {
+  try {
+    const { projectId } = req.params;
+    const { content } = req.body;
+
+    if (!content || !content.trim()) {
+      return res.status(400).json({ message: 'Message content cannot be empty' });
+    }
+
+    const project = await Project.findById(projectId);
+    if (!project) return res.status(404).json({ message: 'Project not found' });
+
+    const isAuthorized =
+      project.creator.toString() === req.user._id.toString() ||
+      project.members.some((m) => m.toString() === req.user._id.toString());
+    if (!isAuthorized) {
+      return res.status(403).json({ message: 'You are not an authorized member of this project' });
+    }
+
+    const message = await Message.create({
+      project: projectId,
+      sender: req.user._id,
+      content: content.trim(),
+      isFile: false,
+    });
+
+    await message.populate('sender', 'name profilePicture');
+
+    // Broadcast in real-time to active room members via Socket.IO
+    if (global.io) {
+      global.io.to(projectId.toString()).emit('receive-message', message);
+    }
+
+    res.status(201).json(message);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { getMessages, createMessage, uploadFile };

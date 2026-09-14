@@ -12,9 +12,21 @@ const register = async (req, res) => {
   try {
     const { name, email, password, contactNumber, skills, githubLink, age } = req.body;
 
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: 'Name, email, and password are required' });
+    }
+
+    if (password.length < 6) {
+      return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    console.log(`[AUTH] Registration attempt for: ${normalizedEmail}`);
+
     // Check if user already exists
-    const userExists = await User.findOne({ email });
+    const userExists = await User.findOne({ email: normalizedEmail });
     if (userExists) {
+      console.log(`[AUTH] Registration rejected: email already registered: ${normalizedEmail}`);
       return res.status(400).json({ message: 'User already exists with this email' });
     }
 
@@ -24,14 +36,16 @@ const register = async (req, res) => {
       : skills || [];
 
     const user = await User.create({
-      name,
-      email,
+      name: name.trim(),
+      email: normalizedEmail,
       password,
       contactNumber,
       skills: skillsArray,
       githubLink,
       age,
     });
+
+    console.log(`[AUTH] User registered successfully: ${user._id} (${user.email})`);
 
     const token = generateToken(user._id);
 
@@ -44,6 +58,7 @@ const register = async (req, res) => {
       token,
     });
   } catch (error) {
+    console.error(`[AUTH] Registration error: ${error.message}`);
     res.status(500).json({ message: error.message });
   }
 };
@@ -54,17 +69,30 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    console.log(`[AUTH] Login attempt for: ${email}`);
+
+    if (!email || !password) {
+      console.log('[AUTH] Login rejected: missing email or password in request body');
+      return res.status(400).json({ message: 'Email and password are required' });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    console.log(`[AUTH] User found: ${!!user}`);
+
     if (!user || !user.password) {
+      console.log('[AUTH] Login failed: user not found or has no password set');
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     const isMatch = await user.comparePassword(password);
+    console.log(`[AUTH] Password match: ${isMatch}`);
+
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
     const token = generateToken(user._id);
+    console.log(`[AUTH] Login success for: ${email}`);
 
     res.json({
       _id: user._id,
@@ -75,6 +103,7 @@ const login = async (req, res) => {
       token,
     });
   } catch (error) {
+    console.error('[AUTH] Login error:', error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -102,6 +131,13 @@ const updateProfile = async (req, res) => {
 
     const user = await User.findById(req.user._id);
     if (!user) return res.status(404).json({ message: 'User not found' });
+
+    // IMPORTANT: Never allow password to be updated via this route.
+    // Password changes must go through a dedicated /change-password endpoint.
+    // This prevents accidental double-hashing of an already-hashed password.
+    if (req.body.password) {
+      return res.status(400).json({ message: 'Use the change-password endpoint to update your password.' });
+    }
 
     if (name) user.name = name;
     if (tagline !== undefined) user.tagline = tagline;

@@ -4,11 +4,11 @@ import {
   Search, Paperclip, Send, ExternalLink, GitBranch,
   FileText, X, Users, ChevronRight,
   Lock, Clock, Crown, Layers, UserCheck, Plus, GitCommit,
-  ShieldAlert, Activity, Sparkles, CheckCheck
+  ShieldAlert, Activity, Sparkles, CheckCheck, MessageSquare
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import {
-  getMyProjects, getProjectById, getMessages, uploadChatFile,
+  getMyProjects, getProjectById, getMessages, sendChatMessage, uploadChatFile,
   getProjectCommits, updateProjectGit
 } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -27,6 +27,7 @@ const ChatPage = () => {
   const [newMessage, setNewMessage] = useState('');
   const [socket, setSocket] = useState(null);
   const [uploading, setUploading] = useState(false);
+  const [sending, setSending] = useState(false);
 
   // Multi-user typing state: Array of user names currently typing
   const [typingUsers, setTypingUsers] = useState([]);
@@ -89,12 +90,14 @@ const ChatPage = () => {
         setProject(projData);
 
         // Check if current user is authorized (creator or in members)
+        const myId = (user?._id || user?.id)?.toString();
+        const creatorId = (projData.creator?._id || projData.creator)?.toString();
         const isMember =
-          projData.creator?._id === user._id ||
-          projData.creator === user._id ||
-          (projData.members || []).some(
-            (m) => (m._id || m).toString() === user._id.toString()
-          );
+          creatorId === myId ||
+          (projData.members || []).some((m) => {
+            const memberId = (m?._id || m)?.toString();
+            return memberId === myId;
+          });
 
         if (!isMember) {
           setIsAuthorized(false);
@@ -115,25 +118,43 @@ const ChatPage = () => {
           auth: { token },
           withCredentials: true,
           transports: ['websocket', 'polling'],
+          reconnection: true,
+          reconnectionAttempts: 10,
+          reconnectionDelay: 1000,
         });
 
         setSocket(activeSocket);
 
-        // Join project room with user presence info
-        activeSocket.emit('join-project', {
-          projectId,
-          user: {
-            _id: user._id,
-            name: user.name,
-            profilePicture: user.profilePicture || '',
-          },
+        const joinRoom = () => {
+          if (!activeSocket) return;
+          activeSocket.emit('join-project', {
+            projectId,
+            user: {
+              _id: myId,
+              name: user.name,
+              profilePicture: user.profilePicture || '',
+            },
+          });
+        };
+
+        // Re-join project room on every connect and reconnect
+        activeSocket.on('connect', () => {
+          joinRoom();
+        });
+
+        if (activeSocket.connected) {
+          joinRoom();
+        }
+
+        activeSocket.on('connect_error', (err) => {
+          console.warn('[CHAT] Socket connection issue:', err.message);
         });
 
         // Listen for new incoming messages from any project member in real-time
         activeSocket.on('receive-message', (msg) => {
           setMessages((prev) => {
-            // Avoid duplicate message appending
-            if (prev.some((m) => m._id === msg._id)) return prev;
+            const msgId = (msg._id || msg).toString();
+            if (prev.some((m) => (m._id || m).toString() === msgId)) return prev;
             return [...prev, msg];
           });
         });
@@ -147,7 +168,7 @@ const ChatPage = () => {
 
         // Listen for multi-user typing events
         activeSocket.on('user-typing', ({ userId, userName }) => {
-          if (userId !== user._id) {
+          if (userId !== myId) {
             setTypingUsers((prev) => {
               if (prev.includes(userName)) return prev;
               return [...prev, userName];
@@ -223,23 +244,44 @@ const ChatPage = () => {
     }
   };
 
-  // Send message to the project group chat
-  const sendMessage = (e) => {
+  // Send message to the project group chat with Dual Sync (Socket.IO + REST fallback)
+  const sendMessage = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || !socket || !isAuthorized) return;
+    const text = newMessage.trim();
+    if (!text || !isAuthorized || sending) return;
 
-    socket.emit('send-message', {
-      projectId,
-      senderId: user._id,
-      content: newMessage.trim(),
-    });
-
-    socket.emit('stop-typing', {
-      projectId,
-      userId: user._id,
-      userName: user.name,
-    });
+    setSending(true);
     setNewMessage('');
+
+    if (socket && socket.connected) {
+      socket.emit('send-message', {
+        projectId,
+        senderId: user._id,
+        content: text,
+      });
+
+      socket.emit('stop-typing', {
+        projectId,
+        userId: user._id,
+        userName: user.name,
+      });
+      setSending(false);
+    } else {
+      // Fallback to REST API if socket is temporarily connecting/reconnecting
+      try {
+        const { data: sentMsg } = await sendChatMessage(projectId, { content: text });
+        setMessages((prev) => {
+          const msgId = (sentMsg._id || sentMsg).toString();
+          if (prev.some((m) => (m._id || m).toString() === msgId)) return prev;
+          return [...prev, sentMsg];
+        });
+      } catch (err) {
+        toast.error(err.response?.data?.message || 'Failed to send message');
+        setNewMessage(text);
+      } finally {
+        setSending(false);
+      }
+    }
   };
 
   // Handle typing with debounced stop-typing
@@ -707,7 +749,7 @@ const ChatPage = () => {
                   <button
                     type="submit"
                     className={`send-btn ${newMessage.trim() ? 'active' : ''}`}
-                    disabled={!newMessage.trim() || uploading}
+                    disabled={!newMessage.trim() || uploading || sending}
                     title="Send message (Enter)"
                   >
                     <Send size={16} />

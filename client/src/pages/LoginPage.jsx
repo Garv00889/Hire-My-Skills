@@ -17,13 +17,16 @@ const LoginPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.email || !form.password) {
+    const email = form.email ? form.email.trim() : '';
+    const password = form.password;
+
+    if (!email || !password) {
       toast.error('Please fill in all fields');
       return;
     }
     setLoading(true);
     try {
-      const { data } = await loginUser(form);
+      const { data } = await loginUser({ email, password });
       login(data, data.token);
       toast.success(`Welcome back, ${data.name}!`);
       navigate('/home');

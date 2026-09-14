@@ -32,21 +32,30 @@ const SignupPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.password) {
+    const name = form.name ? form.name.trim() : '';
+    const email = form.email ? form.email.trim() : '';
+    const password = form.password;
+
+    if (!name || !email || !password) {
       toast.error('Please fill in all required fields');
       return;
     }
-    if (form.password !== form.confirmPassword) {
+    if (password !== form.confirmPassword) {
       toast.error('Passwords do not match');
       return;
     }
-    if (form.password.length < 6) {
+    if (password.length < 6) {
       toast.error('Password must be at least 6 characters');
       return;
     }
     setLoading(true);
     try {
-      const payload = { ...form, skills };
+      const payload = {
+        ...form,
+        name,
+        email,
+        skills,
+      };
       const { data } = await registerUser(payload);
       login(data, data.token);
       toast.success(`Welcome to HireMySkills, ${data.name}!`);

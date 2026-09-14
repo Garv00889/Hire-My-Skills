@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, Wrench, Users, AlignLeft, Upload, IndianRupee, BarChart2, Calendar, Grid, ArrowRight, X } from 'lucide-react';
+import { FileText, Wrench, Users, AlignLeft, Upload, IndianRupee, BarChart2, Calendar, Grid, ArrowRight, X, Sparkles, Lock } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import { createProject } from '../services/api';
 import toast from 'react-hot-toast';

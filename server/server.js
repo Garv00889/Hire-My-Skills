@@ -30,7 +30,7 @@ const server = http.createServer(app);
 // Socket.io setup
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: true, // Dynamically allows http://localhost:5173, 127.0.0.1, other ports
     methods: ['GET', 'POST'],
     credentials: true,
   },

@@ -42,6 +42,7 @@ export const updateApplicationStatus = (appId, status) => API.put(`/applications
 
 // Chat
 export const getMessages = (projectId) => API.get(`/chat/${projectId}/messages`);
+export const sendChatMessage = (projectId, data) => API.post(`/chat/${projectId}/messages`, data);
 export const uploadChatFile = (projectId, formData) => API.post(`/chat/${projectId}/upload`, formData, {
   headers: { 'Content-Type': 'multipart/form-data' },
 });
