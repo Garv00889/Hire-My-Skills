@@ -18,6 +18,7 @@ API.interceptors.request.use((config) => {
 export const registerUser = (data) => API.post('/auth/register', data);
 export const loginUser = (data) => API.post('/auth/login', data);
 export const getMe = () => API.get('/auth/me');
+export const getMeWithToken = (token) => API.get('/auth/me', { headers: { Authorization: `Bearer ${token}` } });
 export const updateProfile = (data) => API.put('/auth/profile', data);
 export const getUserProfile = (userId) => API.get(`/auth/users/${userId}`);
 
