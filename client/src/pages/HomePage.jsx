@@ -1,3 +1,4 @@
+// HomePage.jsx: Modification to add back background circles and apply animations.
 import { useNavigate } from 'react-router-dom';
 import { Sparkles, Search, ArrowRight } from 'lucide-react';
 import Navbar from '../components/Navbar';
@@ -12,8 +13,15 @@ const HomePage = () => {
     <div className="home-page page-enter">
       <Navbar />
 
+      {/* --- ADD NEW BACKGROUND BLUR CIRCLES FOR FLOATING EFFECT --- */}
+      {/* Four distinct circles with different movements */}
+      <div className="bg-glow glow-1" />
+      <div className="bg-glow glow-2" />
+      <div className="bg-glow glow-3" />
+      <div className="bg-glow glow-4" /> {/* Extra circles for better depth */}
+
       <main className="home-main">
-        {/* Left Content */}
+        {/* Main Content (Centered) */}
         <div className="home-content">
           <div className="tagline-badge">
             <Sparkles size={13} color="var(--gold-dark)" /> Where Skills Connect, Ideas Grow
@@ -52,56 +60,9 @@ const HomePage = () => {
             </button>
           </div>
         </div>
-
-        {/* Right — Hero Visual */}
-        <div className="home-visual">
-          <div className="visual-circle" />
-
-          {/* Project Card Floating */}
-          <div className="floating-card project-card-preview">
-            <div className="project-card-header">
-              <span className="badge badge-blue">AI Study Assistant</span>
-              <span className="badge badge-gold">In Progress</span>
-            </div>
-            <div className="member-avatars">
-              {['A', 'B', 'C', 'D'].map((l, i) => (
-                <div key={i} className="mini-avatar" style={{ marginLeft: i > 0 ? -8 : 0 }}>{l}</div>
-              ))}
-              <span style={{ fontSize: 12, color: 'var(--text-muted)', marginLeft: 6 }}>+3</span>
-            </div>
-            <div style={{ marginTop: 12 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}>
-                <span style={{ color: 'var(--text-secondary)' }}>Collaborating as a team</span>
-                <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>70%</span>
-              </div>
-              <div className="progress-bar">
-                <div className="progress-fill" style={{ width: '70%' }} />
-              </div>
-            </div>
-          </div>
-
-          {/* Chat Notification Floating */}
-          <div className="floating-card chat-notif-preview">
-            <div className="mini-avatar">J</div>
-            <div>
-              <p style={{ fontSize: 13, fontWeight: 600 }}>New message</p>
-              <p style={{ fontSize: 11, color: 'var(--text-muted)' }}>Project Team</p>
-              <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 4 }}>
-                Let's finalize the UI/UX flow today.
-              </p>
-            </div>
-            <span style={{ fontSize: 11, color: 'var(--text-muted)', marginLeft: 'auto' }}>2m ago</span>
-          </div>
-
-          {/* Stats badge */}
-          <div className="floating-card stats-badge">
-            <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)' }}>25K+</div>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 500 }}>Students<br />Trust Us</div>
-          </div>
-        </div>
       </main>
 
-      {/* College Logos strip */}
+      {/* Colleges strip (stationaty below hero) */}
       <div className="colleges-strip">
         <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 20 }}>Trusted by students from</p>
         <div className="college-logos">
