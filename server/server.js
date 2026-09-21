@@ -15,6 +15,7 @@ try {
 
 const connectDB = require('./config/db');
 const initSocket = require('./socket/socketHandler');
+const passport = require('./config/passport');
 
 // Route imports
 const authRoutes = require('./routes/authRoutes');
@@ -50,6 +51,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.use(passport.initialize());
 
 // Health check
 app.get('/', (req, res) => {
