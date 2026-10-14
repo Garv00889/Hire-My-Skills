@@ -2,9 +2,9 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   Search, Paperclip, Send, ExternalLink, GitBranch,
-  FileText, X, Users, ChevronRight,
+  FileText, X, Users, ChevronRight, ChevronLeft, Info,
   Lock, Clock, Crown, Layers, UserCheck, Plus, GitCommit,
-  ShieldAlert, Activity, Sparkles, CheckCheck, MessageSquare
+  ShieldAlert, Activity, Sparkles, CheckCheck, MessageSquare, LogIn
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import {
@@ -12,6 +12,7 @@ import {
   getProjectCommits, updateProjectGit
 } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useAuthModal } from '../context/AuthModalContext';
 import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
 import './ChatPage.css';
@@ -20,6 +21,7 @@ const ChatPage = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
   const { user, token } = useAuth();
+  const { openLoginModal } = useAuthModal();
 
   const [myProjects, setMyProjects] = useState([]);
   const [project, setProject] = useState(null);
@@ -28,6 +30,7 @@ const ChatPage = () => {
   const [socket, setSocket] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [showMobileDetails, setShowMobileDetails] = useState(false);
 
   // Multi-user typing state: Array of user names currently typing
   const [typingUsers, setTypingUsers] = useState([]);
@@ -51,16 +54,32 @@ const ChatPage = () => {
   const fileInputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
 
+  // Trigger login modal for unauthenticated users accessing chat
+  useEffect(() => {
+    if (!user) {
+      openLoginModal({
+        title: 'Login to Access Chat',
+        message: 'Sign in to your account to view your project workspaces and chat with team members in real time.',
+        redirectTo: projectId ? `/chat/${projectId}` : '/chat',
+      });
+    }
+  }, [user, projectId, openLoginModal]);
+
   // Fetch all projects user belongs to (for sidebar)
   const fetchMyProjects = useCallback(async () => {
+    if (!user) {
+      setMyProjects([]);
+      setLoadingProjects(false);
+      return;
+    }
     try {
       setLoadingProjects(true);
       const { data } = await getMyProjects();
       const projList = Array.isArray(data) ? data : [];
       setMyProjects(projList);
 
-      // Auto-navigate to first project if no projectId in URL
-      if (!projectId && projList.length > 0) {
+      // Auto-navigate to first project on desktop only
+      if (!projectId && projList.length > 0 && window.innerWidth > 768) {
         navigate(`/chat/${projList[0]._id}`, { replace: true });
       }
     } catch {
@@ -68,7 +87,7 @@ const ChatPage = () => {
     } finally {
       setLoadingProjects(false);
     }
-  }, [projectId, navigate]);
+  }, [user, projectId, navigate]);
 
   useEffect(() => {
     fetchMyProjects();
@@ -388,7 +407,7 @@ const ChatPage = () => {
 
       <div className="chat-layout">
         {/* ========== LEFT SIDEBAR: Project Rooms ========== */}
-        <aside className="chat-sidebar">
+        <aside className={`chat-sidebar ${!projectId ? 'mobile-visible' : 'mobile-hidden'}`}>
           <div className="sidebar-top">
             <div className="chat-search-box">
               <Search size={14} color="var(--text-muted)" />
@@ -410,6 +429,26 @@ const ChatPage = () => {
                     <div className="skeleton skel-text" />
                   </div>
                 ))}
+              </div>
+            ) : !user ? (
+              <div className="no-rooms-state">
+                <Layers size={28} color="var(--gold)" />
+                <p>Sign in to view chats</p>
+                <small>
+                  Log in to see your project team chats and start collaborating
+                </small>
+                <button
+                  type="button"
+                  className="btn-primary"
+                  style={{ marginTop: 12, fontSize: 13, padding: '8px 16px' }}
+                  onClick={() => openLoginModal({
+                    title: 'Login to Access Chat',
+                    message: 'Sign in to your account to view your project workspaces and chat with team members in real time.',
+                    redirectTo: '/chat',
+                  })}
+                >
+                  <LogIn size={14} style={{ marginRight: 4 }} /> Log In
+                </button>
               </div>
             ) : filteredProjects.length === 0 ? (
               <div className="no-rooms-state">
@@ -474,8 +513,30 @@ const ChatPage = () => {
         </aside>
 
         {/* ========== CENTER: Chat Messages & Multi-User Experience ========== */}
-        <main className="chat-main">
-          {!projectId ? (
+        <main className={`chat-main ${projectId ? 'mobile-visible' : 'mobile-hidden'}`}>
+          {!user ? (
+            <div className="chat-empty-state">
+              <div className="chat-empty-icon">
+                <MessageSquare size={32} color="var(--gold)" />
+              </div>
+              <h3>Team Chat Requires Login</h3>
+              <p style={{ maxWidth: 420, margin: '8px auto 20px' }}>
+                Join the conversation, collaborate on milestones, and talk with project teammates by signing in to your account.
+              </p>
+              <button
+                type="button"
+                className="btn-primary"
+                style={{ padding: '10px 22px' }}
+                onClick={() => openLoginModal({
+                  title: 'Login to Access Chat',
+                  message: 'Sign in to your account to view your project workspaces and chat with team members in real time.',
+                  redirectTo: projectId ? `/chat/${projectId}` : '/chat',
+                })}
+              >
+                <LogIn size={15} /> Log In to Access
+              </button>
+            </div>
+          ) : !projectId ? (
             <div className="chat-empty-state">
               <div className="chat-empty-icon">
                 <MessageSquare size={32} color="var(--gold)" />
@@ -503,6 +564,14 @@ const ChatPage = () => {
               {/* Chat Header with Live Multi-User Info */}
               <div className="chat-header">
                 <div className="chat-header-left">
+                  <button 
+                    className="chat-back-btn" 
+                    onClick={() => navigate('/chat')}
+                    aria-label="Back to project chat list"
+                  >
+                    <ChevronLeft size={16} />
+                    <span>Chats</span>
+                  </button>
                   {project && (
                     <>
                       <div
@@ -805,7 +874,7 @@ const ChatPage = () => {
                     mId === project.creator?._id ||
                     mId === project.creator ||
                     mId.toString() === (project.creator?._id || project.creator)?.toString();
-                  const isMe = mId.toString() === user._id.toString();
+                  const isMe = user ? mId.toString() === (user._id || user.id)?.toString() : false;
                   const online = isMemberOnline(mId);
 
                   return (

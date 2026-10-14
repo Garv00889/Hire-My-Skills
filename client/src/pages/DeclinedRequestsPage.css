@@ -108,7 +108,7 @@
 /* Grid Layout */
 .declined-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr));
   gap: 20px;
 }
 
@@ -257,4 +257,41 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .declined-page-wrapper {
+    padding-top: 85px;
+    padding-bottom: 50px;
+  }
+  .declined-title {
+    font-size: 22px;
+  }
+  .declined-card {
+    padding: 16px;
+    border-radius: 18px;
+  }
+  .declined-header .flex-between {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .declined-container {
+    padding: 0 12px;
+  }
+  .declined-title {
+    font-size: 20px;
+  }
+  .declined-card-btns {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .declined-card-btns button {
+    width: 100%;
+    justify-content: center;
+  }
 }

@@ -3,12 +3,13 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Search, Bookmark, Users, Clock, Briefcase, IndianRupee,
   Monitor, ArrowRight, Check, X, Calendar, TrendingUp, Zap,
-  Target, ChevronDown, Layers, ExternalLink, Send
+  Target, ChevronDown, Layers, ExternalLink, Send, SlidersHorizontal
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import ProjectDetailsModal from '../components/ProjectDetailsModal';
 import { getProjects, applyToProject } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useAuthModal } from '../context/AuthModalContext';
 import toast from 'react-hot-toast';
 import './ExploreProjectsPage.css';
 
@@ -28,6 +29,7 @@ const SKILLS_LIST = [
 const ExploreProjectsPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { openLoginModal } = useAuthModal();
   const [searchParams] = useSearchParams();
 
   const [projects, setProjects] = useState([]);
@@ -35,6 +37,7 @@ const ExploreProjectsPage = () => {
   const [search, setSearch] = useState('');
   const [selectedProject, setSelectedProject] = useState(null);
   const [fullDetailsProject, setFullDetailsProject] = useState(null);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
   const [applyMessage, setApplyMessage] = useState('');
   const [applying, setApplying] = useState(false);
@@ -109,8 +112,11 @@ const ExploreProjectsPage = () => {
       return;
     }
     if (!user) {
-      toast.error('Please login to apply');
-      navigate('/login');
+      openLoginModal({
+        title: 'Login Required to Apply',
+        message: 'You need to be logged in to apply for projects. Sign in or create an account to get started.',
+        redirectTo: '/explore',
+      });
       return;
     }
 
@@ -281,6 +287,18 @@ const ExploreProjectsPage = () => {
             />
             <button type="submit" className="btn-primary" style={{ padding: '7px 16px', fontSize: 13, borderRadius: 99 }}>
               Search
+            </button>
+            <button
+              type="button"
+              className={`mobile-filter-btn mobile-only-inline ${filters.skills.length > 0 || filters.type !== 'All' || filters.level !== 'All' || filters.budgetMax < 200000 ? 'has-active' : ''}`}
+              onClick={() => setMobileFiltersOpen(true)}
+              aria-label="Open Filters"
+            >
+              <SlidersHorizontal size={14} />
+              <span>Filters</span>
+              {(filters.skills.length > 0 || filters.type !== 'All' || filters.level !== 'All' || filters.budgetMax < 200000) && (
+                <span className="filter-badge-dot" />
+              )}
             </button>
           </form>
 
@@ -547,6 +565,106 @@ const ExploreProjectsPage = () => {
             fetchProjects();
           }}
         />
+      )}
+
+      {/* Mobile Filters Modal */}
+      {mobileFiltersOpen && (
+        <div className="mobile-filter-overlay" onClick={() => setMobileFiltersOpen(false)}>
+          <div className="mobile-filter-sheet" onClick={(e) => e.stopPropagation()}>
+            <div className="mobile-filter-sheet-header">
+              <h3>Filter Projects</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <button type="button" className="clear-btn" onClick={clearFilters}>
+                  Clear all
+                </button>
+                <button type="button" className="mobile-sheet-close" onClick={() => setMobileFiltersOpen(false)}>
+                  <X size={18} />
+                </button>
+              </div>
+            </div>
+
+            <div className="mobile-filter-sheet-body">
+              {/* Skills Filter */}
+              <div className="filter-section">
+                <h4>Skills</h4>
+                <div className="checkbox-list">
+                  {SKILLS_LIST.map((skill) => (
+                    <label key={skill} className="checkbox-item">
+                      <input
+                        type="checkbox"
+                        checked={filters.skills.includes(skill)}
+                        onChange={() => toggleSkill(skill)}
+                      />
+                      <span>{skill}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Project Type */}
+              <div className="filter-section">
+                <h4>Category</h4>
+                <div className="pill-group">
+                  {['All', 'Webdev', 'AI', 'UI/UX', 'Business', 'Corporate', 'Other'].map((type) => (
+                    <button
+                      key={type}
+                      className={`filter-pill ${filters.type.toLowerCase() === type.toLowerCase() ? 'active' : ''}`}
+                      onClick={() => setFilters((prev) => ({ ...prev, type: type === 'All' ? 'All' : type }))}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Budget Range */}
+              <div className="filter-section">
+                <h4>Max Budget</h4>
+                <div className="budget-slider">
+                  <input
+                    type="range"
+                    min="0"
+                    max="200000"
+                    step="5000"
+                    value={filters.budgetMax}
+                    onChange={(e) => setFilters((prev) => ({ ...prev, budgetMax: Number(e.target.value) }))}
+                  />
+                  <div className="budget-labels">
+                    <span>Rs. 0</span>
+                    <span>Rs. {filters.budgetMax.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Experience Level */}
+              <div className="filter-section">
+                <h4>Experience Level</h4>
+                <div className="pill-group">
+                  {['All', 'Beginner', 'Intermediate', 'Advanced'].map((lvl) => (
+                    <button
+                      key={lvl}
+                      className={`filter-pill ${filters.level.toLowerCase() === lvl.toLowerCase() ? 'active' : ''}`}
+                      onClick={() => setFilters((prev) => ({ ...prev, level: lvl === 'All' ? 'All' : lvl }))}
+                    >
+                      {lvl}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="mobile-filter-sheet-footer">
+              <button
+                type="button"
+                className="btn-primary"
+                style={{ width: '100%', borderRadius: 14 }}
+                onClick={() => setMobileFiltersOpen(false)}
+              >
+                Apply Filters ({filteredList.length} results)
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

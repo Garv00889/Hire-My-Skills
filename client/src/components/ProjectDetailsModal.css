@@ -445,3 +445,18 @@
     align-items: flex-start;
   }
 }
+
+@media (max-width: 480px) {
+  .project-modal-card {
+    padding: 0;
+    border-radius: 20px;
+    width: 95%;
+  }
+  .proj-modal-title {
+    font-size: 20px;
+  }
+  .proj-modal-tags {
+    gap: 6px;
+  }
+}
+

@@ -835,3 +835,27 @@
     align-items: flex-start;
   }
 }
+
+@media (max-width: 480px) {
+  .notif-page-wrapper {
+    padding-top: 85px;
+    padding-bottom: 40px;
+  }
+  .notif-container {
+    padding: 0 12px;
+  }
+  .notif-title {
+    font-size: 22px;
+  }
+  .notif-card {
+    padding: 14px 12px;
+    border-radius: 16px;
+  }
+  .notif-card-actions-right {
+    width: 100%;
+  }
+  .notif-card-actions-right button {
+    flex: 1;
+    justify-content: center;
+  }
+}

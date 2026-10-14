@@ -612,3 +612,56 @@
     justify-content: center;
   }
 }
+
+@media (max-width: 600px) {
+  .profile-page-wrapper {
+    padding-top: 85px;
+    padding-bottom: 40px;
+  }
+  .profile-container {
+    width: 100%;
+    padding: 0 14px;
+  }
+  .profile-hero-card {
+    border-radius: 20px;
+  }
+  .hero-content {
+    padding: 0 18px 24px 18px;
+    margin-top: -35px;
+  }
+  .hero-avatar-img,
+  .hero-avatar-initials {
+    width: 80px;
+    height: 80px;
+    font-size: 26px;
+  }
+  .user-profile-name {
+    font-size: 22px;
+  }
+  .user-tagline {
+    font-size: 13.5px;
+  }
+  .hero-meta-row {
+    flex-wrap: wrap;
+    gap: 8px 14px;
+    font-size: 12px;
+  }
+  .edit-profile-btn,
+  .contact-candidate-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 400px) {
+  .hero-content {
+    padding: 0 14px 20px 14px;
+  }
+  .hero-social-bar {
+    gap: 6px;
+  }
+  .social-pill {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+}

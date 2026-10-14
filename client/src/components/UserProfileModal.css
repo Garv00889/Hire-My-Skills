@@ -265,3 +265,33 @@
   padding-top: 14px;
   border-top: 1px solid rgba(0, 0, 0, 0.06);
 }
+
+/* Responsive */
+@media (max-width: 600px) {
+  .candidate-portfolio-modal {
+    width: 95%;
+    padding: 20px 16px;
+    border-radius: 20px;
+    max-height: 90vh;
+  }
+  .candidate-header {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 12px;
+  }
+  .candidate-meta {
+    justify-content: center;
+  }
+  .candidate-socials {
+    justify-content: center;
+  }
+  .candidate-modal-footer {
+    flex-direction: column;
+  }
+  .candidate-modal-footer button,
+  .candidate-modal-footer a {
+    width: 100%;
+    justify-content: center;
+  }
+}

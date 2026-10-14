@@ -918,13 +918,59 @@
 }
 
 /* Responsive */
+.mobile-visible { display: flex !important; }
+.mobile-hidden  { display: none  !important; }
+
 @media (max-width: 1100px) {
   .chat-layout { grid-template-columns: 260px 1fr; }
   .chat-details-panel { display: none; }
 }
 
 @media (max-width: 700px) {
-  .chat-layout { grid-template-columns: 1fr; }
-  .chat-sidebar { display: none; }
+  .chat-layout {
+    grid-template-columns: 1fr;
+    height: 100vh;
+    padding-top: 74px;
+    box-sizing: border-box;
+  }
+  /* sidebar and chat-main visibility is controlled by mobile-visible/mobile-hidden */
+  .chat-sidebar,
+  .chat-main {
+    /* do NOT add display:none here — JS class controls it */
+  }
+  .chat-back-btn {
+    display: flex !important;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.05);
+    border: none;
+    font-size: 13px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+  .chat-back-btn:hover { background: rgba(0,0,0,0.1); }
+
+  .header-online-avatars { display: none; }
+
+  .chat-input-box { padding: 10px 12px; }
+}
+
+@media (min-width: 701px) {
+  .chat-back-btn { display: none; }
+  /* On desktop always show both panels — override any stale mobile classes */
+  .chat-sidebar.mobile-hidden { display: flex !important; }
+  .chat-main.mobile-hidden    { display: flex !important; }
+}
+
+@media (max-width: 480px) {
+  .chat-sidebar { min-width: 0; }
+  .room-name { font-size: 13px; }
+  .chat-room-title { font-size: 15px; }
+  .chat-capacity-pill { display: none; }
+  .message-bubble { max-width: 90%; }
 }
 

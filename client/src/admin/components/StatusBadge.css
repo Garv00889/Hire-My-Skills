@@ -1,0 +1,82 @@
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  text-transform: capitalize;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.status-badge .badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+/* Green / Active / Approved / Completed / Success */
+.badge-active,
+.badge-approved,
+.badge-completed,
+.badge-resolved,
+.badge-published,
+.badge-student {
+  background-color: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+/* Gold / Amber / Pending / In Progress */
+.badge-pending,
+.badge-in_progress,
+.badge-pending_review,
+.badge-pending_verification,
+.badge-medium,
+.badge-client {
+  background-color: rgba(245, 166, 35, 0.14);
+  color: #D97706;
+  border: 1px solid rgba(245, 166, 35, 0.3);
+}
+
+/* Red / Danger / Rejected / Banned / Suspended / Urgent / Failed */
+.badge-rejected,
+.badge-banned,
+.badge-suspended,
+.badge-urgent,
+.badge-high,
+.badge-dispute,
+.badge-complaint,
+.badge-failed,
+.badge-flagged {
+  background-color: rgba(239, 68, 68, 0.12);
+  color: #DC2626;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+/* Blue / Info / Open / Low */
+.badge-open,
+.badge-low,
+.badge-info,
+.badge-processing,
+.badge-admin,
+.badge-superadmin,
+.badge-moderator,
+.badge-support {
+  background-color: rgba(59, 130, 246, 0.12);
+  color: #2563EB;
+  border: 1px solid rgba(59, 130, 246, 0.25);
+}
+
+/* Gray / Closed / Refunded / Neutral */
+.badge-closed,
+.badge-refunded,
+.badge-hidden,
+.badge-other {
+  background-color: rgba(107, 114, 128, 0.12);
+  color: #4B5563;
+  border: 1px solid rgba(107, 114, 128, 0.2);
+}

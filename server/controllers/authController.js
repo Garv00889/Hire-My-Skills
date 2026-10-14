@@ -53,6 +53,10 @@ const register = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
+      status: user.status,
+      isVerified: user.isVerified,
+      adminPermissions: user.adminPermissions,
       skills: user.skills,
       profilePicture: user.profilePicture,
       token,
@@ -84,12 +88,19 @@ const login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    if (user.status === 'banned' || user.status === 'suspended') {
+      return res.status(403).json({ message: `Your account is ${user.status}. Please contact support.` });
+    }
+
     const isMatch = await user.comparePassword(password);
     console.log(`[AUTH] Password match: ${isMatch}`);
 
     if (!isMatch) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
+
+    user.lastLogin = new Date();
+    await user.save();
 
     const token = generateToken(user._id);
     console.log(`[AUTH] Login success for: ${email}`);
@@ -98,6 +109,10 @@ const login = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
+      role: user.role,
+      status: user.status,
+      isVerified: user.isVerified,
+      adminPermissions: user.adminPermissions,
       skills: user.skills,
       profilePicture: user.profilePicture,
       token,

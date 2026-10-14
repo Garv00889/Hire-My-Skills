@@ -1,0 +1,153 @@
+.admin-projects-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.table-project-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.table-project-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.table-project-name {
+  font-weight: 600;
+  color: #111827;
+  font-size: 14px;
+}
+
+.featured-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  background: rgba(245, 166, 35, 0.15);
+  color: #D4891A;
+  border-radius: 9999px;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.table-project-creator {
+  font-size: 12px;
+  color: #6B7280;
+  text-transform: capitalize;
+}
+
+.table-budget {
+  font-weight: 700;
+  color: #111827;
+  font-size: 14px;
+}
+
+.table-badge-count {
+  display: inline-block;
+  padding: 3px 8px;
+  background: #F3F4F6;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.table-level-tag {
+  text-transform: capitalize;
+  font-size: 12.5px;
+  color: #4B5563;
+}
+
+/* Modal Content */
+.project-modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.project-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 16px;
+  background: #FAF9F6;
+  border-radius: 12px;
+  border: 1px solid #EFECE6;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.meta-lbl {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.meta-val {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.project-description-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.project-description-box p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #374151;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.project-proposals-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.proposals-mini-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.proposal-mini-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  gap: 12px;
+}
+
+.proposal-mini-row strong {
+  font-size: 13.5px;
+  color: #111827;
+}
+
+.proposal-mini-row p {
+  margin: 3px 0 0 0;
+  font-size: 12.5px;
+  color: #6B7280;
+}

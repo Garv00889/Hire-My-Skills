@@ -47,6 +47,30 @@ const userSchema = new mongoose.Schema({
   }],
   googleId: { type: String },
   githubId: { type: String },
+  role: {
+    type: String,
+    enum: ['student', 'client', 'admin', 'superadmin', 'moderator', 'support'],
+    default: 'student',
+  },
+  status: {
+    type: String,
+    enum: ['active', 'suspended', 'banned', 'pending_verification'],
+    default: 'active',
+  },
+  isVerified: { type: Boolean, default: false },
+  walletBalance: { type: Number, default: 0 },
+  totalEarnings: { type: Number, default: 0 },
+  totalSpent: { type: Number, default: 0 },
+  adminPermissions: {
+    canManageUsers: { type: Boolean, default: true },
+    canManageProjects: { type: Boolean, default: true },
+    canManageFinance: { type: Boolean, default: true },
+    canManageTickets: { type: Boolean, default: true },
+    canManageSettings: { type: Boolean, default: true },
+    canManageAnnouncements: { type: Boolean, default: true },
+  },
+  adminNotes: { type: String, default: '' },
+  lastLogin: { type: Date },
 }, { timestamps: true });
 
 // Hash password before saving

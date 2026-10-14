@@ -7,12 +7,14 @@ import {
 } from 'lucide-react';
 import { applyToProject } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useAuthModal } from '../context/AuthModalContext';
 import toast from 'react-hot-toast';
 import './ProjectDetailsModal.css';
 
 const ProjectDetailsModal = ({ project, onClose, onApplied }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { openLoginModal } = useAuthModal();
 
   const [applyMessage, setApplyMessage] = useState('');
   const [applying, setApplying] = useState(false);
@@ -34,8 +36,12 @@ const ProjectDetailsModal = ({ project, onClose, onApplied }) => {
   const handleApply = async (e) => {
     e.preventDefault();
     if (!user) {
-      toast.error('Please login to apply');
-      navigate('/login');
+      onClose();
+      openLoginModal({
+        title: 'Login Required to Apply',
+        message: 'You need to be logged in to apply for projects. Sign in or create an account to get started.',
+        redirectTo: '/explore',
+      });
       return;
     }
     if (isCreator) {

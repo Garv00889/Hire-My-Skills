@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import {
   Bell, MessageSquare, UserCheck, UserX,
   CheckCircle2, Clock, Sparkles, ArrowRight, Check,
-  Sliders, Eye, Layers, Trash2, RefreshCw, BellOff
+  Sliders, Eye, Layers, Trash2, RefreshCw, BellOff, LogIn
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import UserProfileModal from '../components/UserProfileModal';
 import { useNotifications } from '../context/NotificationContext';
+import { useAuth } from '../context/AuthContext';
+import { useAuthModal } from '../context/AuthModalContext';
 import { deleteNotification, updateApplicationStatus, getDeclinedApplications } from '../services/api';
 import toast from 'react-hot-toast';
 import './NotificationsPage.css';
@@ -149,6 +151,8 @@ const NotifCard = ({ item, onMarkRead, onDelete, onAction, onAccept, onDecline }
 // ─────────────────────────────────────────────
 const NotificationsPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { openLoginModal } = useAuthModal();
   const {
     notifications,
     unreadCount,
@@ -166,8 +170,20 @@ const NotificationsPage = () => {
   const [filter, setFilter] = useState('all');
   const [refreshing, setRefreshing] = useState(false);
 
+  // Show login required modal if not logged in
+  useEffect(() => {
+    if (!user) {
+      openLoginModal({
+        title: 'Login to View Notifications',
+        message: 'Sign in to your account to view your project applications, updates, and team notifications.',
+        redirectTo: '/notifications',
+      });
+    }
+  }, [user, openLoginModal]);
+
   // Load declined applications
   const fetchDeclined = useCallback(async () => {
+    if (!user) return;
     try {
       setDeclinedLoading(true);
       const res = await getDeclinedApplications();
@@ -177,7 +193,7 @@ const NotificationsPage = () => {
     } finally {
       setDeclinedLoading(false);
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     fetchDeclined();
@@ -516,17 +532,37 @@ const NotificationsPage = () => {
                   <div className="empty-notif-state">
                     <div className="empty-icon"><BellOff size={36} color="var(--gold)" /></div>
                     <h3>
-                      {filter === 'unread' ? 'All caught up' : 'No Notifications Yet'}
+                      {!user
+                        ? 'Sign in to see notifications'
+                        : filter === 'unread'
+                        ? 'All caught up'
+                        : 'No Notifications Yet'}
                     </h3>
                     <p>
-                      {filter === 'unread'
+                      {!user
+                        ? 'Log in or create an account to view your project updates, applications, and team notifications.'
+                        : filter === 'unread'
                         ? 'You have no unread notifications. Great job staying on top of things.'
                         : 'When someone applies to your project, sends a message, or updates your application status, it will appear here.'}
                     </p>
                     <div className="empty-actions flex-center gap-8" style={{ marginTop: 20 }}>
-                      <button type="button" className="btn-primary" onClick={() => navigate('/explore')}>
-                        Explore Projects <ArrowRight size={14} />
-                      </button>
+                      {!user ? (
+                        <button
+                          type="button"
+                          className="btn-primary"
+                          onClick={() => openLoginModal({
+                            title: 'Login to View Notifications',
+                            message: 'Sign in to your account to view your project applications, updates, and team notifications.',
+                            redirectTo: '/notifications',
+                          })}
+                        >
+                          <LogIn size={15} /> Log In to Access
+                        </button>
+                      ) : (
+                        <button type="button" className="btn-primary" onClick={() => navigate('/explore')}>
+                          Explore Projects <ArrowRight size={14} />
+                        </button>
+                      )}
                     </div>
                   </div>
                 ) : (

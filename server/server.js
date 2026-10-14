@@ -24,9 +24,13 @@ const applicationRoutes = require('./routes/applicationRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 const app = express();
 const server = http.createServer(app);
+
+// Trust proxy for Render reverse proxy (SSL, headers, IPs)
+app.set('trust proxy', 1);
 
 // Socket.io setup
 const io = new Server(server, {
@@ -60,11 +64,13 @@ app.get('/', (req, res) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/auth', authRoutes); // OAuth redirect compatibility alias
 app.use('/api/projects', projectRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {

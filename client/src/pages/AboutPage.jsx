@@ -5,6 +5,8 @@ import {
   Code, Zap, Compass, Target, Eye, UserCheck
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import { useAuth } from '../context/AuthContext';
+import { useAuthModal } from '../context/AuthModalContext';
 import './AboutPage.css';
 
 // Inline brand icon
@@ -16,6 +18,20 @@ const GithubIcon = ({ size = 18 }) => (
 
 const AboutPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { openLoginModal } = useAuthModal();
+
+  const handlePostProject = () => {
+    if (!user) {
+      openLoginModal({
+        title: 'Login Required',
+        message: 'You need to be logged in to post a project. Sign in or create an account to get started.',
+        redirectTo: '/create-project',
+      });
+    } else {
+      navigate('/create-project');
+    }
+  };
 
   return (
     <div className="about-page-wrapper">
@@ -40,7 +56,7 @@ const AboutPage = () => {
             <button className="btn-primary hero-btn" onClick={() => navigate('/explore')}>
               Explore Projects <ArrowRight size={16} />
             </button>
-            <button className="btn-secondary hero-btn" onClick={() => navigate('/create-project')}>
+            <button className="btn-secondary hero-btn" onClick={handlePostProject}>
               Post a Project
             </button>
           </div>

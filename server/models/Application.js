@@ -4,6 +4,9 @@ const applicationSchema = new mongoose.Schema({
   project: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: true },
   applicant: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   message: { type: String, default: '' },
+  bidAmount: { type: Number, default: 0 },
+  deliveryDays: { type: Number, default: 7 },
+  adminNotes: { type: String, default: '' },
   status: {
     type: String,
     enum: ['pending', 'approved', 'rejected', 'temporarily_declined'],

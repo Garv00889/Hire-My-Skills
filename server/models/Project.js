@@ -25,7 +25,9 @@ const projectSchema = new mongoose.Schema({
   creator: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   members: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   githubRepo: { type: String, default: '' },
-  status: { type: String, enum: ['open', 'closed'], default: 'open' },
+  status: { type: String, enum: ['open', 'in_progress', 'completed', 'closed', 'flagged'], default: 'open' },
+  isFeatured: { type: Boolean, default: false },
+  adminNotes: { type: String, default: '' },
 }, { timestamps: true });
 
 // Performance indexes for multi-user explore, creator lookups, and member memberships
