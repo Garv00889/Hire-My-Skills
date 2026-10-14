@@ -20,21 +20,26 @@ const LoginPage = () => {
     const params = new URLSearchParams(window.location.search);
     const oauthToken = params.get('token');
     const oauthError = params.get('error');
+    const oauthMessage = params.get('message');
     const returnTo = params.get('returnTo');
 
     if (oauthError) {
       const errorMessages = {
         github_cancelled: 'GitHub sign-in was cancelled.',
-        github_failed: 'GitHub login failed. Please try again.',
+        github_failed: 'GitHub login failed.',
         github_not_configured: 'GitHub OAuth is not configured on the server.',
         google_cancelled: 'Google sign-in was cancelled.',
-        google_failed: 'Google login failed. Please try again.',
+        google_failed: 'Google login failed.',
         google_not_configured: 'Google OAuth is not configured on the server.',
         no_verified_email: 'Your GitHub account has no verified email address.',
         account_inactive: 'Your account is deactivated. Please contact support.',
         invalid_state: 'Authentication session expired. Please try again.',
       };
-      toast.error(errorMessages[oauthError] || 'Authentication failed. Please try again.');
+      let text = errorMessages[oauthError] || 'Authentication failed. Please try again.';
+      if (oauthMessage) {
+        text += ` Reason: ${decodeURIComponent(oauthMessage)}`;
+      }
+      toast.error(text, { duration: 6000 });
       window.history.replaceState({}, document.title, '/login');
       return;
     }

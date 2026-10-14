@@ -120,20 +120,25 @@ router.get('/github/callback', (req, res, next) => {
     return res.redirect(`${targetFrontend}/login?error=invalid_state`);
   }
 
-  passport.authenticate('github', { session: false }, (err, user) => {
+  passport.authenticate('github', { session: false }, (err, user, info) => {
     if (err) {
-      console.error('[OAUTH] GitHub passport callback error:', err.message);
+      console.error('[OAUTH] GitHub passport callback error:', err);
+      if (err.oauthError) {
+        console.error('[OAUTH] GitHub internal oauthError details:', err.oauthError);
+      }
       if (err.message === 'NO_VERIFIED_EMAIL') {
         return res.redirect(`${targetFrontend}/login?error=no_verified_email`);
       }
       if (err.message === 'ACCOUNT_INACTIVE') {
         return res.redirect(`${targetFrontend}/login?error=account_inactive`);
       }
-      return res.redirect(`${targetFrontend}/login?error=github_failed`);
+      const reason = encodeURIComponent(err.message || 'auth_error');
+      return res.redirect(`${targetFrontend}/login?error=github_failed&message=${reason}`);
     }
 
     if (!user) {
-      return res.redirect(`${targetFrontend}/login?error=github_failed`);
+      const reason = encodeURIComponent((info && (info.message || JSON.stringify(info))) || 'user_not_found');
+      return res.redirect(`${targetFrontend}/login?error=github_failed&message=${reason}`);
     }
 
     res.clearCookie('hms_oauth_state');
