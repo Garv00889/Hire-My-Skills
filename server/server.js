@@ -99,10 +99,64 @@ const runCleanupJob = async () => {
   }
 };
 
+const User = require('./models/User');
+
+// Automatically ensure default SuperAdmin account exists in any connected MongoDB
+const ensureSuperAdmin = async () => {
+  try {
+    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@hiremyskills.com').toLowerCase().trim();
+    const adminPass = process.env.ADMIN_PASSWORD || 'AdminPassword123!';
+    let admin = await User.findOne({ email: adminEmail });
+    if (!admin) {
+      admin = await User.create({
+        name: 'Super Administrator',
+        email: adminEmail,
+        password: adminPass,
+        role: 'superadmin',
+        status: 'active',
+        isVerified: true,
+        tagline: 'Lead System Architect & Admin',
+        location: 'Mumbai, India',
+        contactNumber: '+91 99999 88888',
+        adminPermissions: {
+          canManageUsers: true,
+          canManageProjects: true,
+          canManageFinance: true,
+          canManageTickets: true,
+          canManageSettings: true,
+          canManageAnnouncements: true,
+        },
+      });
+      console.log(`👑 [SUPERADMIN] Created default SuperAdmin: ${adminEmail}`);
+    } else {
+      let changed = false;
+      if (admin.role !== 'superadmin') {
+        admin.role = 'superadmin';
+        changed = true;
+      }
+      if (admin.status !== 'active') {
+        admin.status = 'active';
+        changed = true;
+      }
+      if (!admin.isVerified) {
+        admin.isVerified = true;
+        changed = true;
+      }
+      if (changed) {
+        await admin.save();
+        console.log(`👑 [SUPERADMIN] Verified SuperAdmin permissions: ${adminEmail}`);
+      }
+    }
+  } catch (err) {
+    console.error('SuperAdmin seed check notice:', err.message);
+  }
+};
+
 const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
   await connectDB();
+  await ensureSuperAdmin();
   // Run cleanup on startup and every 60 minutes
   runCleanupJob();
   setInterval(runCleanupJob, 60 * 60 * 1000);
@@ -110,7 +164,6 @@ const startServer = async () => {
   server.listen(PORT, () => {
     console.log(`🚀 Server running on http://localhost:${PORT}`);
   });
-
 };
 
 startServer();

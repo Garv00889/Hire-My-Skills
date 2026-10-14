@@ -132,7 +132,17 @@ router.get('/github/callback', (req, res, next) => {
       if (err.message === 'ACCOUNT_INACTIVE') {
         return res.redirect(`${targetFrontend}/login?error=account_inactive`);
       }
-      const reason = encodeURIComponent(err.message || 'auth_error');
+
+      let detailMsg = err.message || 'auth_error';
+      if (err.oauthError?.data) {
+        try {
+          const parsed = JSON.parse(err.oauthError.data);
+          detailMsg = parsed.error_description || parsed.error || err.oauthError.data;
+        } catch (e) {
+          detailMsg = err.oauthError.data;
+        }
+      }
+      const reason = encodeURIComponent(detailMsg);
       return res.redirect(`${targetFrontend}/login?error=github_failed&message=${reason}`);
     }
 
@@ -145,6 +155,40 @@ router.get('/github/callback', (req, res, next) => {
     const token = user.jwtToken;
     return res.redirect(`${targetFrontend}/login?token=${token}&returnTo=${encodeURIComponent(returnTo)}`);
   })(req, res, next);
+});
+
+// ─── SuperAdmin Bootstrap Endpoint ──────────────────────────────────────────────
+router.get('/init-admin', async (req, res) => {
+  try {
+    const User = require('../models/User');
+    const adminEmail = (process.env.ADMIN_EMAIL || 'admin@hiremyskills.com').toLowerCase().trim();
+    const adminPass = process.env.ADMIN_PASSWORD || 'AdminPassword123!';
+    let admin = await User.findOne({ email: adminEmail });
+    if (!admin) {
+      admin = await User.create({
+        name: 'Super Administrator',
+        email: adminEmail,
+        password: adminPass,
+        role: 'superadmin',
+        status: 'active',
+        isVerified: true,
+      });
+    } else {
+      admin.role = 'superadmin';
+      admin.status = 'active';
+      admin.isVerified = true;
+      admin.password = adminPass;
+      await admin.save();
+    }
+    return res.json({
+      success: true,
+      message: `SuperAdmin credentials ready! You can now log in.`,
+      email: adminEmail,
+      password: adminPass,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
 });
 
 module.exports = router;
