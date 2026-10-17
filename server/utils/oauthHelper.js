@@ -9,6 +9,38 @@ const DEFAULT_ALLOWED_ORIGINS = [
   'http://127.0.0.1:3000',
 ];
 
+const isAllowedOrigin = (origin) => {
+  if (!origin || typeof origin !== 'string') return false;
+  try {
+    const parsed = new URL(origin);
+    const host = parsed.hostname;
+    const protocol = parsed.protocol;
+
+    if (protocol !== 'http:' && protocol !== 'https:') return false;
+
+    // Localhost or loopback on any port for local development
+    if (host === 'localhost' || host === '127.0.0.1') return true;
+
+    // Official production Vercel domain & preview builds
+    if (host === 'hire-my-skills.vercel.app') return true;
+    if (host.endsWith('.vercel.app') && (host.startsWith('hire-my-skills') || host.startsWith('hiremyskills'))) {
+      return true;
+    }
+
+    // Configured environment variables
+    const custom = [process.env.FRONTEND_URL, process.env.CLIENT_URL].filter(Boolean);
+    for (const c of custom) {
+      try {
+        if (new URL(c).origin === parsed.origin) return true;
+      } catch (_) {}
+    }
+
+    return false;
+  } catch (e) {
+    return false;
+  }
+};
+
 const getAllowedOrigins = () => {
   const list = [...DEFAULT_ALLOWED_ORIGINS];
   if (process.env.FRONTEND_URL) list.push(process.env.FRONTEND_URL.replace(/\/$/, ''));
@@ -20,12 +52,11 @@ const getAllowedOrigins = () => {
  * Validates and normalizes target origin
  */
 const getSafeFrontendOrigin = (requestedOrigin) => {
-  const allowed = getAllowedOrigins();
   if (requestedOrigin) {
     try {
       const parsed = new URL(requestedOrigin);
       const origin = parsed.origin;
-      if (allowed.includes(origin)) {
+      if (isAllowedOrigin(origin)) {
         return origin;
       }
     } catch (e) {
@@ -51,7 +82,7 @@ const sanitizeReturnTo = (path) => {
 /**
  * Generates cryptographically signed OAuth state
  */
-const generateOAuthState = (returnTo, requestedOrigin) => {
+const generateOAuthState = (returnTo, requestedOrigin, callbackUrl = null) => {
   const secret = process.env.SESSION_SECRET || process.env.JWT_SECRET || 'hms_oauth_secret_fallback_key';
   const clientUrl = getSafeFrontendOrigin(requestedOrigin);
   const safeReturnTo = sanitizeReturnTo(returnTo);
@@ -60,6 +91,7 @@ const generateOAuthState = (returnTo, requestedOrigin) => {
     nonce: crypto.randomBytes(16).toString('hex'),
     returnTo: safeReturnTo,
     clientUrl,
+    callbackUrl: callbackUrl || null,
     iat: Date.now(),
   };
 
@@ -101,6 +133,7 @@ const verifyOAuthState = (stateStr) => {
     return {
       returnTo: sanitizeReturnTo(payload.returnTo),
       clientUrl: getSafeFrontendOrigin(payload.clientUrl),
+      callbackUrl: payload.callbackUrl || null,
       nonce: payload.nonce,
     };
   } catch (err) {
@@ -109,6 +142,7 @@ const verifyOAuthState = (stateStr) => {
 };
 
 module.exports = {
+  isAllowedOrigin,
   getAllowedOrigins,
   getSafeFrontendOrigin,
   sanitizeReturnTo,

@@ -11,6 +11,16 @@ import { useAuthModal } from '../context/AuthModalContext';
 import toast from 'react-hot-toast';
 import './ProjectDetailsModal.css';
 
+const ensureAbsoluteUrl = (url) => {
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (!trimmed) return '';
+  if (/^(?:f|ht)tps?:\/\//i.test(trimmed) || trimmed.startsWith('mailto:') || trimmed.startsWith('tel:')) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+};
+
 const ProjectDetailsModal = ({ project, onClose, onApplied }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -268,19 +278,19 @@ const ProjectDetailsModal = ({ project, onClose, onApplied }) => {
                   <div className="resource-links-list">
                     {project.githubRepo && (
                       <a
-                        href={project.githubRepo}
+                        href={ensureAbsoluteUrl(project.githubRepo)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="resource-link-btn"
                       >
                         <GitBranch size={14} />
-                        <span>{project.githubRepo.replace('https://', '')}</span>
+                        <span>{project.githubRepo.replace(/^https?:\/\//i, '')}</span>
                         <ExternalLink size={12} />
                       </a>
                     )}
                     {project.designFile && (
                       <a
-                        href={project.designFile}
+                        href={ensureAbsoluteUrl(project.designFile)}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="resource-link-btn"

@@ -182,12 +182,15 @@
   border-radius: 20px;
   padding: 24px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.03);
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition: transform var(--duration-fast) var(--ease-out-smooth),
+              border-color var(--duration-fast) var(--ease-out-smooth),
+              box-shadow var(--duration-fast) var(--ease-out-smooth);
 }
 
 .workflow-card:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
   border-color: rgba(245, 166, 35, 0.4);
+  box-shadow: 0 14px 32px rgba(245, 166, 35, 0.12);
 }
 
 .workflow-step-num {
@@ -197,6 +200,11 @@
   font-size: 22px;
   font-weight: 900;
   color: rgba(245, 166, 35, 0.25);
+  transition: color var(--duration-fast) var(--ease-out-smooth);
+}
+
+.workflow-card:hover .workflow-step-num {
+  color: rgba(245, 166, 35, 0.5);
 }
 
 .workflow-card-icon {
@@ -209,6 +217,11 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 14px;
+  transition: transform var(--duration-fast) var(--ease-spring);
+}
+
+.workflow-card:hover .workflow-card-icon {
+  transform: scale(1.08);
 }
 
 .workflow-card h3 {
@@ -241,12 +254,15 @@
   border: 1px solid var(--border);
   border-radius: 20px;
   padding: 24px;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition: transform var(--duration-fast) var(--ease-out-smooth),
+              border-color var(--duration-fast) var(--ease-out-smooth),
+              box-shadow var(--duration-fast) var(--ease-out-smooth);
 }
 
 .feature-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(245, 166, 35, 0.35);
+  transform: translateY(-4px);
+  border-color: rgba(245, 166, 35, 0.4);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.06);
 }
 
 .f-icon {

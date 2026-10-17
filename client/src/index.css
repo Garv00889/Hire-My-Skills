@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+/* Fonts loaded via preconnect in index.html for high performance */
 
 
 :root {
@@ -27,7 +27,20 @@
   --radius-lg: 20px;
   --radius-xl: 28px;
 
-  --transition: all 0.2s ease;
+  /* Animation & Motion Tokens */
+  --ease-out-smooth: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  --duration-instant: 120ms;
+  --duration-fast: 180ms;
+  --duration-normal: 260ms;
+  --duration-moderate: 380ms;
+  --duration-slow: 480ms;
+
+  --stagger-step: 60ms;
+
+  --transition: all 0.2s var(--ease-out-smooth);
 }
 
 *,
@@ -81,9 +94,20 @@ select {
   outline: none;
 }
 
-img {
+img,
+svg,
+video {
   max-width: 100%;
+}
+
+img {
   display: block;
+}
+
+.break-words {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 
@@ -500,19 +524,233 @@ textarea.auto-resize {
 }
 
 
-.page-enter {
-  animation: fadeInUp 0.35s ease forwards;
-}
+/* ============================================================
+   GLOBAL ANIMATION SYSTEM & MOTION UTILITIES
+   ============================================================ */
 
-@keyframes fadeInUp {
+/* Entrance Animation Keyframes */
+@keyframes hmsFadeUp {
   from {
     opacity: 0;
     transform: translateY(16px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes hmsFadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hmsFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes hmsScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes hmsSlideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes hmsSlideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes hmsModalBackdrop {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes hmsModalContent {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Page entrance */
+.page-enter {
+  animation: hmsFadeUp var(--duration-moderate) var(--ease-out-smooth) forwards;
+}
+
+/* Reusable Animation Classes */
+.animate-fade-up {
+  animation: hmsFadeUp var(--duration-moderate) var(--ease-out-smooth) both;
+}
+
+.animate-fade-down {
+  animation: hmsFadeDown var(--duration-moderate) var(--ease-out-smooth) both;
+}
+
+.animate-fade-in {
+  animation: hmsFadeIn var(--duration-normal) var(--ease-out-smooth) both;
+}
+
+.animate-scale-up {
+  animation: hmsScaleUp var(--duration-moderate) var(--ease-spring) both;
+}
+
+.animate-slide-right {
+  animation: hmsSlideInRight var(--duration-moderate) var(--ease-out-smooth) both;
+}
+
+.animate-slide-left {
+  animation: hmsSlideInLeft var(--duration-moderate) var(--ease-out-smooth) both;
+}
+
+/* Progressive Stagger Delays */
+.stagger-1 { animation-delay: 40ms; }
+.stagger-2 { animation-delay: 90ms; }
+.stagger-3 { animation-delay: 140ms; }
+.stagger-4 { animation-delay: 190ms; }
+.stagger-5 { animation-delay: 240ms; }
+.stagger-6 { animation-delay: 290ms; }
+.stagger-7 { animation-delay: 340ms; }
+.stagger-8 { animation-delay: 390ms; }
+
+/* Micro-interaction Utilities */
+.card-interactive {
+  transition: transform var(--duration-fast) var(--ease-out-smooth),
+              box-shadow var(--duration-fast) var(--ease-out-smooth),
+              border-color var(--duration-fast) var(--ease-out-smooth);
+  will-change: transform, box-shadow;
+}
+
+.card-interactive:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
+}
+
+.card-interactive:active {
+  transform: translateY(-1px);
+}
+
+.btn-interactive {
+  transition: transform var(--duration-fast) var(--ease-out-smooth),
+              background var(--duration-fast) var(--ease-out-smooth),
+              box-shadow var(--duration-fast) var(--ease-out-smooth),
+              color var(--duration-fast) var(--ease-out-smooth);
+  will-change: transform;
+}
+
+.btn-interactive:hover {
+  transform: translateY(-1px);
+}
+
+.btn-interactive:active {
+  transform: scale(0.98);
+}
+
+.input-interactive {
+  transition: border-color var(--duration-fast) var(--ease-out-smooth),
+              box-shadow var(--duration-fast) var(--ease-out-smooth),
+              background-color var(--duration-fast) var(--ease-out-smooth);
+}
+
+.input-interactive:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.18);
+}
+
+/* Scroll-Triggered Reveal Classes */
+.reveal-on-scroll {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity var(--duration-moderate) var(--ease-out-smooth),
+              transform var(--duration-moderate) var(--ease-out-smooth);
+  will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-fade-in {
+  opacity: 0;
+  transition: opacity var(--duration-moderate) var(--ease-out-smooth);
+  will-change: opacity;
+}
+
+.reveal-fade-in.is-revealed {
+  opacity: 1;
+}
+
+.reveal-scale-in {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity var(--duration-moderate) var(--ease-out-smooth),
+              transform var(--duration-moderate) var(--ease-spring);
+  will-change: opacity, transform;
+}
+
+.reveal-scale-in.is-revealed {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Reduced Motion Support for Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .reveal-on-scroll,
+  .reveal-fade-in,
+  .reveal-scale-in {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }
 

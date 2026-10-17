@@ -7,6 +7,16 @@ import {
 import { getUserProfile } from '../services/api';
 import './UserProfileModal.css';
 
+const ensureAbsoluteUrl = (url) => {
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (!trimmed) return '';
+  if (/^(?:f|ht)tps?:\/\//i.test(trimmed) || trimmed.startsWith('mailto:') || trimmed.startsWith('tel:')) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+};
+
 // Inline brand icons (lucide-react dropped Github/Linkedin/Twitter)
 const GithubIcon = ({ size = 14 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
@@ -88,17 +98,17 @@ const UserProfileModal = ({ userId, onClose }) => {
                 {/* Social Links */}
                 <div className="candidate-socials">
                   {profile.socialLinks?.github || profile.githubLink ? (
-                    <a href={profile.socialLinks?.github || profile.githubLink} target="_blank" rel="noreferrer" className="social-pill-sm">
+                    <a href={ensureAbsoluteUrl(profile.socialLinks?.github || profile.githubLink)} target="_blank" rel="noreferrer" className="social-pill-sm">
                       <GithubIcon size={13} /> GitHub
                     </a>
                   ) : null}
                   {profile.socialLinks?.linkedin && (
-                    <a href={profile.socialLinks.linkedin} target="_blank" rel="noreferrer" className="social-pill-sm">
+                    <a href={ensureAbsoluteUrl(profile.socialLinks.linkedin)} target="_blank" rel="noreferrer" className="social-pill-sm">
                       <LinkedinIcon size={13} /> LinkedIn
                     </a>
                   )}
                   {profile.socialLinks?.portfolio && (
-                    <a href={profile.socialLinks.portfolio} target="_blank" rel="noreferrer" className="social-pill-sm">
+                    <a href={ensureAbsoluteUrl(profile.socialLinks.portfolio)} target="_blank" rel="noreferrer" className="social-pill-sm">
                       <Globe size={13} /> Portfolio
                     </a>
                   )}
@@ -167,12 +177,12 @@ const UserProfileModal = ({ userId, onClose }) => {
                           <h5 className="proj-title-sm">{proj.title}</h5>
                           <div className="flex-center gap-6">
                             {proj.githubLink && (
-                              <a href={proj.githubLink} target="_blank" rel="noreferrer" className="icon-link-sm" title="Code Repo">
+                              <a href={ensureAbsoluteUrl(proj.githubLink)} target="_blank" rel="noreferrer" className="icon-link-sm" title="Code Repo">
                                 <GithubIcon size={13} />
                               </a>
                             )}
                             {proj.liveLink && (
-                              <a href={proj.liveLink} target="_blank" rel="noreferrer" className="icon-link-sm" title="Live Demo">
+                              <a href={ensureAbsoluteUrl(proj.liveLink)} target="_blank" rel="noreferrer" className="icon-link-sm" title="Live Demo">
                                 <ExternalLink size={13} />
                               </a>
                             )}
@@ -234,7 +244,7 @@ const UserProfileModal = ({ userId, onClose }) => {
                             <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{cert.issuer} {cert.issueDate ? `· ${cert.issueDate}` : ''}</span>
                           </div>
                           {cert.credentialUrl && (
-                            <a href={cert.credentialUrl} target="_blank" rel="noreferrer" className="icon-link-sm" title="View Credential">
+                            <a href={ensureAbsoluteUrl(cert.credentialUrl)} target="_blank" rel="noreferrer" className="icon-link-sm" title="View Credential">
                               <ExternalLink size={13} />
                             </a>
                           )}

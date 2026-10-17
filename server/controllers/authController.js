@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 
 // Generate JWT token
 const generateToken = (id) => {
@@ -182,6 +183,9 @@ const updateProfile = async (req, res) => {
 // @route   GET /api/auth/users/:userId
 const getUserProfileById = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.userId)) {
+      return res.status(404).json({ message: 'User profile not found' });
+    }
     const user = await User.findById(req.params.userId).select('-password');
     if (!user) return res.status(404).json({ message: 'User profile not found' });
     res.json(user);

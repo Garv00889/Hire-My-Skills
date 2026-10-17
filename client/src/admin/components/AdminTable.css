@@ -6,6 +6,7 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
   display: flex;
   flex-direction: column;
+  animation: hmsFadeUp var(--duration-moderate) var(--ease-out-smooth) both;
 }
 
 .admin-table-toolbar {

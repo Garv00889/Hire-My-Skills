@@ -12,6 +12,7 @@ import {
   Tag,
   CheckCircle,
   AlertTriangle,
+  RefreshCw,
 } from 'lucide-react';
 import AdminTable from '../components/AdminTable';
 import StatusBadge from '../components/StatusBadge';
@@ -29,6 +30,7 @@ const AdminProjectsPage = () => {
   const { id: routeProjectId } = useParams();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [totalRecords, setTotalRecords] = useState(0);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -61,6 +63,7 @@ const AdminProjectsPage = () => {
   const fetchProjects = async () => {
     try {
       setLoading(true);
+      setError(null);
       const res = await getAdminProjects({
         page,
         limit: 15,
@@ -72,7 +75,9 @@ const AdminProjectsPage = () => {
       setTotalRecords(res.data?.total || 0);
       setTotalPages(res.data?.pages || 1);
     } catch (err) {
-      toast.error('Failed to load projects');
+      const errMsg = err.response?.data?.message || err.message || 'Failed to load projects';
+      setError(errMsg);
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }
@@ -143,7 +148,7 @@ const AdminProjectsPage = () => {
             )}
           </div>
           <span className="table-project-creator">
-            by {row.creator?.name || 'Unknown'} · {row.category}
+            by {row.creator?.name || 'Deleted / Unknown User'} · {row.category || 'General'}
           </span>
         </div>
       ),
@@ -259,6 +264,18 @@ const AdminProjectsPage = () => {
         </div>
       </div>
 
+      {error && (
+        <div className="admin-error-banner">
+          <div className="error-banner-content">
+            <AlertTriangle size={18} />
+            <span>{error}</span>
+          </div>
+          <button className="admin-retry-btn" onClick={fetchProjects}>
+            <RefreshCw size={14} /> Retry
+          </button>
+        </div>
+      )}
+
       <AdminTable
         columns={columns}
         data={projects}
@@ -291,25 +308,28 @@ const AdminProjectsPage = () => {
             <div className="project-meta-grid">
               <div className="meta-item">
                 <span className="meta-lbl">Client</span>
-                <span className="meta-val">{projectDetails?.project?.creator?.name} ({projectDetails?.project?.creator?.email})</span>
+                <span className="meta-val">
+                  {projectDetails?.project?.creator?.name || 'Deleted / Unknown User'}{' '}
+                  {projectDetails?.project?.creator?.email ? `(${projectDetails.project.creator.email})` : ''}
+                </span>
               </div>
               <div className="meta-item">
                 <span className="meta-lbl">Budget</span>
-                <span className="meta-val">₹{projectDetails?.project?.budget?.toLocaleString()}</span>
+                <span className="meta-val">₹{(projectDetails?.project?.budget || 0).toLocaleString('en-IN')}</span>
               </div>
               <div className="meta-item">
                 <span className="meta-lbl">Category & Level</span>
-                <span className="meta-val">{projectDetails?.project?.category} · {projectDetails?.project?.level}</span>
+                <span className="meta-val">{projectDetails?.project?.category || 'General'} · {projectDetails?.project?.level || 'Intermediate'}</span>
               </div>
               <div className="meta-item">
                 <span className="meta-lbl">Team Size Required</span>
-                <span className="meta-val">{projectDetails?.project?.membersRequired} members</span>
+                <span className="meta-val">{projectDetails?.project?.membersRequired || 1} members</span>
               </div>
             </div>
 
             <div className="project-description-box">
               <span className="meta-lbl">Project Description</span>
-              <p>{projectDetails?.project?.description}</p>
+              <p>{projectDetails?.project?.description || 'No description provided.'}</p>
             </div>
 
             {projectDetails?.project?.skillRequirements?.length > 0 && (
@@ -330,10 +350,10 @@ const AdminProjectsPage = () => {
                 <p className="empty-subtext">No proposals submitted yet</p>
               ) : (
                 <div className="proposals-mini-list">
-                  {projectDetails.applications.map((app, idx) => (
+                  {projectDetails?.applications?.map((app, idx) => (
                     <div key={idx} className="proposal-mini-row">
                       <div>
-                        <strong>{app.applicant?.name}</strong>
+                        <strong>{app.applicant?.name || 'Deleted / Unknown Student'}</strong>
                         <p>{app.message || 'No proposal pitch included'}</p>
                       </div>
                       <StatusBadge status={app.status} />

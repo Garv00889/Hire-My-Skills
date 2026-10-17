@@ -18,6 +18,7 @@
   top: 104px;
   height: calc(100vh - 104px);
   overflow: hidden;
+  animation: hmsSlideInLeft var(--duration-moderate) var(--ease-out-smooth) both;
 }
 
 .create-headline {
@@ -68,6 +69,7 @@
   width: 100%;
   max-width: 800px;
   box-shadow: var(--shadow-sm);
+  animation: hmsFadeUp var(--duration-moderate) var(--ease-out-smooth) both;
 }
 
 .create-form-header {
@@ -282,6 +284,14 @@
   justify-content: space-between;
 }
 
+.date-arrow {
+  margin-top: 22px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 @media (max-width: 900px) {
   .create-layout {
     padding-top: 80px;
@@ -328,5 +338,13 @@
   .date-row {
     flex-direction: column;
     gap: 12px;
+  }
+
+  .date-row .date-col {
+    width: 100%;
+  }
+
+  .date-arrow {
+    display: none;
   }
 }

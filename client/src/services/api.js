@@ -14,6 +14,19 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
+// Handle 401 Unauthorized cleanly
+API.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/login')) {
+      localStorage.removeItem('hms_token');
+      localStorage.removeItem('hms_user');
+      window.dispatchEvent(new Event('hms_auth_unauthorized'));
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Auth & Profile
 export const registerUser = (data) => API.post('/auth/register', data);
 export const loginUser = (data) => API.post('/auth/login', data);
@@ -55,5 +68,17 @@ export const markNotificationRead = (id) => API.put(`/notifications/${id}/read`)
 export const markBatchNotificationsRead = (ids) => API.put('/notifications/read-batch', { ids });
 export const markAllNotificationsRead = () => API.put('/notifications/read-all');
 export const deleteNotification = (id) => API.delete(`/notifications/${id}`);
+
+// GitHub Integration
+export const getGitHubStatus = () => API.get('/github/status');
+export const disconnectGitHub = () => API.post('/github/disconnect');
+export const getProjectGitHub = (projectId) => API.get(`/github/projects/${projectId}`);
+export const getUserRepos = () => API.get('/github/user-repos');
+export const createProjectRepo = (projectId, data) => API.post(`/github/projects/${projectId}/create-repo`, data);
+export const connectExistingRepo = (projectId, data) => API.post(`/github/projects/${projectId}/connect-existing`, data);
+export const disconnectProjectRepo = (projectId) => API.delete(`/github/projects/${projectId}/disconnect-repo`);
+export const grantCollaborator = (projectId, data) => API.post(`/github/projects/${projectId}/collaborators`, data);
+export const revokeCollaborator = (projectId, memberId) => API.delete(`/github/projects/${projectId}/collaborators/${memberId}`);
+export const getProjectGitCommits = (projectId) => API.get(`/github/projects/${projectId}/commits`);
 
 export default API;

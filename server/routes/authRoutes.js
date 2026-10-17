@@ -18,6 +18,25 @@ router.post('/logout', (req, res) => {
   res.json({ success: true, message: 'Logged out successfully' });
 });
 
+// Helper to resolve exact matching OAuth callback URLs across dev, test, and production
+const getCallbackURL = (req, provider) => {
+  // Always prioritize the explicitly configured callback URL in environment,
+  // because GitHub strictly validates redirect_uri against the registered callback URL in GitHub Developer Settings.
+  if (process.env[`${provider.toUpperCase()}_CALLBACK_URL`]) {
+    return process.env[`${provider.toUpperCase()}_CALLBACK_URL`];
+  }
+
+  const host = req.get('host');
+  // If running locally without GITHUB_CALLBACK_URL, use local host callback URL
+  if (host && (host.includes('localhost') || host.includes('127.0.0.1'))) {
+    const protocol = req.protocol === 'https' ? 'https' : 'http';
+    return `${protocol}://${host}/api/auth/${provider}/callback`;
+  }
+
+  // Production fallback
+  return `https://hire-my-skills.onrender.com/api/auth/${provider}/callback`;
+};
+
 // ─── Google OAuth ──────────────────────────────────────────────────────────────
 router.get('/google', (req, res, next) => {
   const returnTo = req.query.returnTo || '/home';
@@ -28,7 +47,8 @@ router.get('/google', (req, res, next) => {
     return res.redirect(`${targetOrigin}/login?error=google_not_configured`);
   }
 
-  const state = generateOAuthState(returnTo, targetOrigin);
+  const callbackURL = getCallbackURL(req, 'google');
+  const state = generateOAuthState(returnTo, targetOrigin, callbackURL);
 
   res.cookie('hms_oauth_state', state, {
     httpOnly: true,
@@ -41,6 +61,7 @@ router.get('/google', (req, res, next) => {
     scope: ['profile', 'email'],
     session: false,
     state,
+    callbackURL,
   })(req, res, next);
 });
 
@@ -49,6 +70,7 @@ router.get('/google/callback', (req, res, next) => {
   const fallbackOrigin = getSafeFrontendOrigin();
   const targetFrontend = stateData?.clientUrl || fallbackOrigin;
   const returnTo = stateData?.returnTo || '/home';
+  const callbackURL = stateData?.callbackUrl || getCallbackURL(req, 'google');
 
   if (req.query.error) {
     console.warn('[OAUTH] Google auth error from provider:', req.query.error);
@@ -56,7 +78,12 @@ router.get('/google/callback', (req, res, next) => {
     return res.redirect(`${targetFrontend}/login?error=${errCode}`);
   }
 
-  passport.authenticate('google', { session: false }, (err, user) => {
+  if (!stateData) {
+    console.error('[OAUTH] Invalid or expired Google OAuth state');
+    return res.redirect(`${targetFrontend}/login?error=invalid_state`);
+  }
+
+  passport.authenticate('google', { session: false, callbackURL }, (err, user) => {
     if (err) {
       console.error('[OAUTH] Google auth callback error:', err.message);
       if (err.message === 'ACCOUNT_INACTIVE') {
@@ -85,7 +112,8 @@ router.get('/github', (req, res, next) => {
     return res.redirect(`${targetOrigin}/login?error=github_not_configured`);
   }
 
-  const state = generateOAuthState(returnTo, targetOrigin);
+  const callbackURL = getCallbackURL(req, 'github');
+  const state = generateOAuthState(returnTo, targetOrigin, callbackURL);
 
   res.cookie('hms_oauth_state', state, {
     httpOnly: true,
@@ -94,10 +122,16 @@ router.get('/github', (req, res, next) => {
     maxAge: 15 * 60 * 1000,
   });
 
+  // Support full repo scope when connecting from project chat workspace
+  const requestedScope = req.query.scope === 'repo'
+    ? ['repo', 'user:email']
+    : ['user:email', 'repo'];
+
   passport.authenticate('github', {
-    scope: ['user:email'],
+    scope: requestedScope,
     session: false,
     state,
+    callbackURL,
   })(req, res, next);
 });
 
@@ -106,6 +140,7 @@ router.get('/github/callback', (req, res, next) => {
   const fallbackOrigin = getSafeFrontendOrigin();
   const targetFrontend = stateData?.clientUrl || fallbackOrigin;
   const returnTo = stateData?.returnTo || '/home';
+  const callbackURL = stateData?.callbackUrl || getCallbackURL(req, 'github');
 
   // Handle provider cancellation or denied access
   if (req.query.error) {
@@ -120,7 +155,7 @@ router.get('/github/callback', (req, res, next) => {
     return res.redirect(`${targetFrontend}/login?error=invalid_state`);
   }
 
-  passport.authenticate('github', { session: false }, (err, user, info) => {
+  passport.authenticate('github', { session: false, callbackURL }, (err, user, info) => {
     if (err) {
       console.error('[OAUTH] GitHub passport callback error:', err);
       if (err.oauthError) {

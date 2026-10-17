@@ -3,6 +3,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { encryptToken } = require('../utils/tokenEncryption');
 
 // Generate JWT token (same helper pattern as authController)
 const generateToken = (id) => {
@@ -42,27 +43,14 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
             return done(new Error('ACCOUNT_INACTIVE'), null);
           }
 
-          let changed = false;
-          // Update googleId if this is an existing user linking for the first time
-          if (!user.googleId) {
-            user.googleId = googleId;
-            changed = true;
-          }
-          // Update profile picture if they don't have one
-          if (!user.profilePicture && profilePicture) {
-            user.profilePicture = profilePicture;
-            changed = true;
-          }
-          if (!user.isVerified) {
-            user.isVerified = true;
-            changed = true;
-          }
-          user.lastLogin = new Date();
-          if (changed) {
-            await user.save();
-          } else {
-            await User.updateOne({ _id: user._id }, { lastLogin: new Date() });
-          }
+          const updateFields = {
+            lastLogin: new Date(),
+          };
+          if (!user.googleId) updateFields.googleId = googleId;
+          if (!user.profilePicture && profilePicture) updateFields.profilePicture = profilePicture;
+          if (!user.isVerified) updateFields.isVerified = true;
+
+          user = await User.findByIdAndUpdate(user._id, { $set: updateFields }, { new: true });
         } else {
           // 3. Brand new user — create account
           user = await User.create({
@@ -95,20 +83,34 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
 
 // ─── GitHub OAuth Strategy ──────────────────────────────────────────────────────
 if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
-  passport.use(
-    new GitHubStrategy(
-      {
-        clientID: process.env.GITHUB_CLIENT_ID,
-        clientSecret: process.env.GITHUB_CLIENT_SECRET,
-        callbackURL: process.env.GITHUB_CALLBACK_URL || 'https://hire-my-skills.onrender.com/api/auth/github/callback',
-        scope: ['user:email'],
-      },
-      async (accessToken, refreshToken, profile, done) => {
+  const githubStrategy = new GitHubStrategy(
+    {
+      clientID: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      callbackURL: process.env.GITHUB_CALLBACK_URL || 'https://hire-my-skills.onrender.com/api/auth/github/callback',
+      scope: ['user:email'],
+    },
+    async (accessToken, refreshToken, profile, done) => {
       try {
         const githubId = String(profile.id);
-        let email = profile.emails?.[0]?.value?.toLowerCase().trim();
+        let email = null;
 
-        // If email wasn't included directly in profile (e.g. private email setting), fetch from GitHub user emails API
+        // 1. Check profile.emails array (primary & verified first)
+        if (Array.isArray(profile.emails) && profile.emails.length > 0) {
+          const primaryVerified = profile.emails.find((e) => e.primary && e.verified);
+          const anyVerified = profile.emails.find((e) => e.verified);
+          const selected = primaryVerified || anyVerified || profile.emails[0];
+          if (selected?.value) {
+            email = selected.value.toLowerCase().trim();
+          }
+        }
+
+        // 2. Check profile._json.email
+        if (!email && profile._json?.email) {
+          email = profile._json.email.toLowerCase().trim();
+        }
+
+        // 3. If email wasn't included directly, attempt to fetch from GitHub user emails API
         if (!email && accessToken) {
           try {
             const emailRes = await fetch('https://api.github.com/user/emails', {
@@ -121,7 +123,6 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
             if (emailRes.ok) {
               const emailsData = await emailRes.json();
               if (Array.isArray(emailsData) && emailsData.length > 0) {
-                // Find primary & verified email first, or any verified email
                 const primaryVerified = emailsData.find((e) => e.primary && e.verified);
                 const anyVerified = emailsData.find((e) => e.verified);
                 const selected = primaryVerified || anyVerified || emailsData[0];
@@ -137,13 +138,20 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
           }
         }
 
+        // 4. Fallback: Users with private emails on GitHub receive an official GitHub noreply email address
         if (!email) {
-          return done(new Error('NO_VERIFIED_EMAIL'), null);
+          const username = profile.username || profile._json?.login || 'user';
+          email = `${githubId}+${username}@users.noreply.github.com`.toLowerCase().trim();
+          console.log(`[OAUTH] Using GitHub noreply email fallback for ${username}: ${email}`);
         }
 
-        const name = profile.displayName || profile.username || 'GitHub User';
+        const name = profile.displayName || profile.username || profile._json?.name || profile._json?.login || 'GitHub User';
         const profilePicture = profile.photos?.[0]?.value || profile._json?.avatar_url || '';
-        const githubLink = profile.profileUrl || (profile.username ? `https://github.com/${profile.username}` : '');
+        const githubUsername = profile.username || profile._json?.login || '';
+        const githubLink = profile.profileUrl || (profile.username ? `https://github.com/${profile.username}` : (profile._json?.html_url || ''));
+
+        // Encrypt the GitHub OAuth access token before saving
+        const encryptedToken = accessToken ? encryptToken(accessToken) : '';
 
         // 1. Try to find existing user by githubId
         let user = await User.findOne({ githubId });
@@ -158,37 +166,32 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
             return done(new Error('ACCOUNT_INACTIVE'), null);
           }
 
-          let changed = false;
-          if (!user.githubId) {
-            user.githubId = githubId;
-            changed = true;
+          const updateFields = {
+            lastLogin: new Date(),
+          };
+          if (!user.githubId) updateFields.githubId = githubId;
+          if (githubUsername) updateFields.githubUsername = githubUsername;
+          if (encryptedToken) {
+            updateFields.githubAccessTokenEncrypted = encryptedToken;
+            updateFields.githubConnectedAt = new Date();
           }
-          if (!user.githubLink && githubLink) {
-            user.githubLink = githubLink;
-            if (!user.socialLinks) user.socialLinks = {};
-            user.socialLinks.github = githubLink;
-            changed = true;
+          if (!user.githubLink && githubLink) updateFields.githubLink = githubLink;
+          if (!user.socialLinks?.github && githubLink) {
+            updateFields['socialLinks.github'] = githubLink;
           }
-          if (!user.profilePicture && profilePicture) {
-            user.profilePicture = profilePicture;
-            changed = true;
-          }
-          if (!user.isVerified) {
-            user.isVerified = true;
-            changed = true;
-          }
-          user.lastLogin = new Date();
-          if (changed) {
-            await user.save();
-          } else {
-            await User.updateOne({ _id: user._id }, { lastLogin: new Date() });
-          }
+          if (!user.profilePicture && profilePicture) updateFields.profilePicture = profilePicture;
+          if (!user.isVerified) updateFields.isVerified = true;
+
+          user = await User.findByIdAndUpdate(user._id, { $set: updateFields }, { new: true });
         } else {
           // 3. Brand new user registration via GitHub
           user = await User.create({
             name,
             email,
             githubId,
+            githubUsername,
+            githubAccessTokenEncrypted: encryptedToken,
+            githubConnectedAt: encryptedToken ? new Date() : undefined,
             githubLink,
             socialLinks: { github: githubLink },
             profilePicture: profilePicture || '',
@@ -203,14 +206,73 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
         const token = generateToken(user._id);
         user.jwtToken = token;
 
-        console.log(`[OAUTH] GitHub login success for: ${user.email} (${user._id})`);
+        console.log(`[OAUTH] GitHub login success for: ${user.email || email} (${user._id})`);
         return done(null, user);
       } catch (error) {
         console.error('[OAUTH] GitHub strategy error:', error.message);
         return done(error, null);
       }
     }
-  ));
+  );
+
+  // Override userProfile to safely handle private emails without throwing InternalOAuthError
+  githubStrategy.userProfile = function(accessToken, done) {
+    const self = this;
+    this._oauth2.get(this._userProfileURL, accessToken, (err, body) => {
+      if (err) {
+        return done(new Error('Failed to fetch user profile from GitHub: ' + (err.message || 'OAuth error')));
+      }
+
+      let json;
+      try {
+        json = JSON.parse(body);
+      } catch (e) {
+        return done(new Error('Failed to parse GitHub user profile response'));
+      }
+
+      const profile = {
+        provider: 'github',
+        id: String(json.id),
+        username: json.login,
+        displayName: json.name || json.login,
+        profileUrl: json.html_url,
+        photos: json.avatar_url ? [{ value: json.avatar_url }] : [],
+        emails: [],
+        _raw: body,
+        _json: json,
+      };
+
+      if (json.email) {
+        profile.emails.push({ value: json.email, primary: true, verified: true });
+      }
+
+      // Gracefully attempt to fetch private user emails without crashing on 403 or empty response
+      self._oauth2.get(self._userEmailURL, accessToken, (emailErr, emailBody) => {
+        if (!emailErr && emailBody) {
+          try {
+            const emailsJson = JSON.parse(emailBody);
+            if (Array.isArray(emailsJson)) {
+              const parsedEmails = emailsJson
+                .filter(e => e && e.email)
+                .map(e => ({
+                  value: e.email,
+                  primary: !!e.primary,
+                  verified: !!e.verified,
+                }));
+              if (parsedEmails.length > 0) {
+                profile.emails = parsedEmails;
+              }
+            }
+          } catch (_) {
+            // Ignore parse errors on emails
+          }
+        }
+        return done(null, profile);
+      });
+    });
+  };
+
+  passport.use(githubStrategy);
 } else {
   console.warn('[OAUTH] GitHub OAuth disabled: Missing GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET');
 }

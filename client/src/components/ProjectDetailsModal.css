@@ -13,6 +13,7 @@
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  animation: hmsModalContent var(--duration-normal) var(--ease-spring) both;
 }
 
 /* Modal Header */

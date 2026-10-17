@@ -34,6 +34,18 @@ const HomePage = () => {
     }
   }, [location.hash]);
 
+  // Open login modal if directed with requireLogin state
+  useEffect(() => {
+    if (location.state?.requireLogin) {
+      openLoginModal({
+        title: 'Login Required',
+        message: 'You need to be logged in to access that page. Sign in or create an account to get started.',
+        redirectTo: location.state?.from || '/home',
+      });
+      window.history.replaceState({}, document.title, location.pathname);
+    }
+  }, [location.state, location.pathname, openLoginModal]);
+
   const handleCreateProject = () => {
     if (!user) {
       openLoginModal({
@@ -47,15 +59,7 @@ const HomePage = () => {
   };
 
   const handleExploreProjects = () => {
-    if (!user) {
-      openLoginModal({
-        title: 'Login Required',
-        message: 'You need to be logged in to explore projects. Sign in or create an account to get started.',
-        redirectTo: '/explore',
-      });
-    } else {
-      navigate('/explore');
-    }
+    navigate('/explore');
   };
 
   return (
@@ -71,25 +75,25 @@ const HomePage = () => {
       {/* ================= HERO SECTION ================= */}
       <main className="home-main">
         <div className="home-content">
-          <div className="tagline-badge">
+          <div className="tagline-badge animate-fade-down stagger-1">
             <Sparkles size={13} color="var(--gold-dark)" /> Where Skills Connect, Ideas Grow
           </div>
 
-          <h1 className="home-headline">
+          <h1 className="home-headline animate-fade-up stagger-2">
             Build together.<br />
             <span className="text-gold">Achieve more.</span>
           </h1>
 
-          <p className="home-subtext">
+          <p className="home-subtext animate-fade-up stagger-3">
             HireMySkill is the platform for students to hire, collaborate
             and contribute in real-world projects. Learn, build and grow
             together with trusted peers.
           </p>
 
-          <div className="home-cta">
+          <div className="home-cta animate-fade-up stagger-4">
             <button
               id="btn-create-project"
-              className="cta-primary"
+              className="cta-primary btn-interactive"
               onClick={handleCreateProject}
             >
               <Sparkles size={18} />
@@ -99,7 +103,7 @@ const HomePage = () => {
 
             <button
               id="btn-explore-projects"
-              className="cta-secondary"
+              className="cta-secondary btn-interactive"
               onClick={handleExploreProjects}
             >
               <Search size={18} />
@@ -111,7 +115,7 @@ const HomePage = () => {
       </main>
 
       {/* Colleges strip */}
-      <div className="colleges-strip">
+      <div className="colleges-strip reveal-on-scroll">
         <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 20 }}>Trusted by students from</p>
         <div className="college-logos">
           {[
@@ -121,7 +125,7 @@ const HomePage = () => {
             { name: 'BITS PILANI', badge: 'BITS' },
             { name: 'DTU DELHI', badge: 'DTU' },
           ].map((c) => (
-            <div key={c.name} className="college-item">
+            <div key={c.name} className="college-item card-interactive">
               <div className="college-badge-icon">{c.badge}</div>
               <span>{c.name}</span>
             </div>
@@ -133,7 +137,7 @@ const HomePage = () => {
       {/* ================= ABOUT SECTION (Integrated Below Home) ================= */}
       <section id="about" className="about-container home-about-section">
         {/* About Hero Card */}
-        <div className="about-hero-card">
+        <div className="about-hero-card reveal-on-scroll">
           <div className="hero-glow-accent" />
           <div className="about-badge-pill">
             <Sparkles size={14} color="var(--gold-dark)" /> About HireMySkills Platform
@@ -147,10 +151,10 @@ const HomePage = () => {
           </p>
 
           <div className="about-hero-actions">
-            <button className="btn-primary hero-btn" onClick={handleExploreProjects}>
+            <button className="btn-primary hero-btn btn-interactive" onClick={handleExploreProjects}>
               Explore Projects <ArrowRight size={16} />
             </button>
-            <button className="btn-secondary hero-btn" onClick={handleCreateProject}>
+            <button className="btn-secondary hero-btn btn-interactive" onClick={handleCreateProject}>
               Post a Project
             </button>
           </div>
@@ -158,7 +162,7 @@ const HomePage = () => {
 
         {/* What the Platform Is */}
         <div className="about-section-grid-2">
-          <div className="glass-card-about">
+          <div className="glass-card-about card-interactive reveal-on-scroll">
             <div className="about-icon-box gold">
               <Compass size={22} />
             </div>
@@ -171,7 +175,7 @@ const HomePage = () => {
             </p>
           </div>
 
-          <div className="glass-card-about">
+          <div className="glass-card-about card-interactive reveal-on-scroll">
             <div className="about-icon-box blue">
               <ShieldCheck size={22} />
             </div>
@@ -186,7 +190,7 @@ const HomePage = () => {
         </div>
 
         {/* How It Works Workflow */}
-        <div className="workflow-section">
+        <div className="workflow-section reveal-on-scroll">
           <div className="section-header-center">
             <span className="section-chip">Seamless 6-Step Journey</span>
             <h2>How HireMySkills Works</h2>
@@ -204,7 +208,7 @@ const HomePage = () => {
             ].map((s, idx) => {
               const IconComp = s.icon;
               return (
-                <div key={idx} className="workflow-card">
+                <div key={idx} className="workflow-card card-interactive reveal-on-scroll" style={{ transitionDelay: `${idx * 40}ms` }}>
                   <span className="workflow-step-num">{s.step}</span>
                   <div className="workflow-card-icon">
                     <IconComp size={20} />
@@ -218,39 +222,39 @@ const HomePage = () => {
         </div>
 
         {/* Key Features Grid */}
-        <div className="features-section">
+        <div className="features-section reveal-on-scroll">
           <div className="section-header-center">
             <span className="section-chip">Platform Capabilities</span>
             <h2>Key Platform Features</h2>
           </div>
 
           <div className="features-grid">
-            <div className="feature-card">
+            <div className="feature-card card-interactive reveal-on-scroll">
               <div className="f-icon"><Layers size={20} /></div>
               <h3>Project Discovery</h3>
               <p>Filter projects by skills, category, experience level, budget, and deadline.</p>
             </div>
-            <div className="feature-card">
+            <div className="feature-card card-interactive reveal-on-scroll">
               <div className="f-icon"><Code size={20} /></div>
               <h3>Interactive Portfolios</h3>
               <p>Showcase past projects, live demos, skills badges, and work timeline easily.</p>
             </div>
-            <div className="feature-card">
+            <div className="feature-card card-interactive reveal-on-scroll">
               <div className="f-icon"><CheckCircle2 size={20} /></div>
               <h3>Application Review</h3>
               <p>Shortlist or decline applicants with clean candidate profiles and privacy safeguards.</p>
             </div>
-            <div className="feature-card">
+            <div className="feature-card card-interactive reveal-on-scroll">
               <div className="f-icon"><MessageSquare size={20} /></div>
               <h3>Real-Time Group Chat</h3>
               <p>Instant socket-driven project workspace chat with file attachment support.</p>
             </div>
-            <div className="feature-card">
+            <div className="feature-card card-interactive reveal-on-scroll">
               <div className="f-icon"><GithubIcon size={20} /></div>
               <h3>Git Repository Integration</h3>
               <p>Connect GitHub repos, monitor team commit updates, and manage codebase history.</p>
             </div>
-            <div className="feature-card">
+            <div className="feature-card card-interactive reveal-on-scroll">
               <div className="f-icon"><ShieldCheck size={20} /></div>
               <h3>Secure Access Control</h3>
               <p>Strict authorization ensures only shortlisted team members access project groups.</p>
@@ -260,7 +264,7 @@ const HomePage = () => {
 
         {/* Mission & Vision Section */}
         <div className="mission-vision-grid">
-          <div className="mission-card">
+          <div className="mission-card card-interactive reveal-on-scroll">
             <div className="mv-header">
               <Target size={24} color="var(--gold-dark)" />
               <h2>Our Mission</h2>
@@ -270,7 +274,7 @@ const HomePage = () => {
             </p>
           </div>
 
-          <div className="vision-card">
+          <div className="vision-card card-interactive reveal-on-scroll">
             <div className="mv-header">
               <Eye size={24} color="var(--gold-dark)" />
               <h2>Our Vision</h2>
@@ -282,11 +286,11 @@ const HomePage = () => {
         </div>
 
         {/* Footer CTA */}
-        <div className="about-footer-cta">
+        <div className="about-footer-cta reveal-on-scroll">
           <h2>Ready to Build Something Amazing?</h2>
           <p>Join thousands of students and creators building the future together.</p>
           <div className="flex-center gap-12" style={{ marginTop: 20 }}>
-            <button className="btn-primary" onClick={handleExploreProjects}>
+            <button className="btn-primary btn-interactive" onClick={handleExploreProjects}>
               Explore Open Projects <ArrowRight size={16} />
             </button>
           </div>

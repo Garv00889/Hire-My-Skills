@@ -88,6 +88,13 @@
   margin-bottom: 24px;
   overflow-x: auto;
   padding-bottom: 4px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.review-filter-bar::-webkit-scrollbar {
+  display: none;
 }
 
 .review-tab-btn {
@@ -164,13 +171,20 @@
   background: #fff;
   border: 1px solid var(--border);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform var(--duration-fast) var(--ease-out-smooth),
+              border-color var(--duration-fast) var(--ease-out-smooth),
+              box-shadow var(--duration-fast) var(--ease-out-smooth);
+  animation: hmsFadeUp var(--duration-moderate) var(--ease-out-smooth) both;
 }
 
 .candidate-queue-card:hover {
   border-color: var(--gold);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+}
+
+.candidate-queue-card:active {
+  transform: translateY(0);
 }
 
 .candidate-queue-card.selected {

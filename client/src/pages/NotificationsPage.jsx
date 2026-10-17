@@ -263,8 +263,13 @@ const NotificationsPage = () => {
 
   const handleAction = (item) => {
     markRead(item.id);
-    if (item.actionType === 'chat') return navigate(`/chat/${item.projectId}`);
-    if (item.actionType === 'application') return navigate(`/projects/${item.projectId}/applications`);
+    const pId = item.projectId?._id || item.projectId;
+    if (item.actionType === 'chat') {
+      return navigate(pId ? `/chat/${pId}` : '/chat');
+    }
+    if (item.actionType === 'application') {
+      return navigate(pId ? `/projects/${pId}/applications` : '/explore');
+    }
     navigate('/explore');
   };
 

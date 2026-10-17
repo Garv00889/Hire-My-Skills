@@ -235,7 +235,7 @@ const CreateProjectPage = () => {
                         <input id="deadline-start" type="date" name="deadlineStart" value={form.deadlineStart} onChange={handleChange} />
                       </div>
                     </div>
-                    <div style={{ marginTop: 22, padding: '0 8px' }}><ArrowRight size={16} color="var(--text-muted)" /></div>
+                    <div className="date-arrow"><ArrowRight size={16} color="var(--text-muted)" /></div>
                     <div className="date-col" style={{ flex: 1 }}>
                       <label style={{ fontSize: 11, color: 'var(--text-muted)', display: 'block', marginBottom: 6 }}>End Date</label>
                       <div className="input-field">

@@ -180,6 +180,47 @@ const AdminDashboardPage = () => {
 
       {/* Bottom Row: Recent Activity & Latest Projects */}
       <div className="admin-analytics-row bottom-row">
+        {/* Recent Platform Projects */}
+        <div className="admin-recent-card">
+          <div className="admin-card-header">
+            <div>
+              <h2 className="admin-card-title">Recent Projects</h2>
+              <p className="admin-card-subtitle">Latest postings across marketplace</p>
+            </div>
+            <Link to="/admin/projects" className="admin-card-link">
+              View All <ArrowRight size={14} />
+            </Link>
+          </div>
+
+          <div className="recent-items-list">
+            {recentProjects.length === 0 ? (
+              <p className="empty-subtext">No projects posted yet</p>
+            ) : (
+              recentProjects.map((proj, idx) => (
+                <div key={proj._id || idx} className="recent-item-row">
+                  <div className="recent-item-left">
+                    <div className="recent-item-icon project-icon">
+                      <FolderGit2 size={16} />
+                    </div>
+                    <div>
+                      <p className="recent-item-primary" title={proj.title}>
+                        {proj.title?.length > 28 ? `${proj.title.substring(0, 28)}...` : proj.title}
+                      </p>
+                      <p className="recent-item-secondary">
+                        by {proj.creator?.name || 'Client'} · {proj.category || 'General'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="recent-item-right">
+                    <span className="recent-item-amount">₹{(proj.budget || 0).toLocaleString('en-IN')}</span>
+                    <StatusBadge status={proj.status} />
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
         {/* Recent Platform Transactions */}
         <div className="admin-recent-card">
           <div className="admin-card-header">

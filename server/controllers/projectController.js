@@ -1,5 +1,6 @@
 const Project = require('../models/Project');
 const Notification = require('../models/Notification');
+const mongoose = require('mongoose');
 
 // @desc    Create a new project
 // @route   POST /api/projects
@@ -73,6 +74,10 @@ const getProjects = async (req, res) => {
 // @route   GET /api/projects/:id
 const getProjectById = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
     const project = await Project.findById(req.params.id)
       .populate('creator', 'name email profilePicture skills')
       .populate('members', 'name email profilePicture skills');
@@ -88,9 +93,14 @@ const getProjectById = async (req, res) => {
 // @route   PUT /api/projects/:id
 const updateProject = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
     const project = await Project.findById(req.params.id);
     if (!project) return res.status(404).json({ message: 'Project not found' });
-    if (project.creator.toString() !== req.user._id.toString()) {
+    const creatorId = project.creator?._id || project.creator;
+    if (!creatorId || creatorId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not authorized to update this project' });
     }
 
@@ -105,9 +115,14 @@ const updateProject = async (req, res) => {
 // @route   DELETE /api/projects/:id
 const deleteProject = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
     const project = await Project.findById(req.params.id);
     if (!project) return res.status(404).json({ message: 'Project not found' });
-    if (project.creator.toString() !== req.user._id.toString()) {
+    const creatorId = project.creator?._id || project.creator;
+    if (!creatorId || creatorId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not authorized' });
     }
     await project.deleteOne();
@@ -138,10 +153,15 @@ const getMyProjects = async (req, res) => {
 const updateGitRepo = async (req, res) => {
   try {
     const { githubRepo, repoName, repoOwner, defaultBranch } = req.body;
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
     const project = await Project.findById(req.params.id);
 
     if (!project) return res.status(404).json({ message: 'Project not found' });
-    if (project.creator.toString() !== req.user._id.toString()) {
+    const creatorId = project.creator?._id || project.creator;
+    if (!creatorId || creatorId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Only project creator can connect Git repository' });
     }
 
@@ -164,12 +184,17 @@ const updateGitRepo = async (req, res) => {
 // @route   GET /api/projects/:id/commits
 const getGitCommits = async (req, res) => {
   try {
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
     const project = await Project.findById(req.params.id);
     if (!project) return res.status(404).json({ message: 'Project not found' });
 
     // Ensure user is an authorized member or creator
-    const isMember = project.members.some(m => m.toString() === req.user._id.toString()) ||
-                     project.creator.toString() === req.user._id.toString();
+    const creatorId = project.creator?._id || project.creator;
+    const isMember = (project.members || []).some(m => (m?._id || m)?.toString() === req.user._id.toString()) ||
+                     (creatorId && creatorId.toString() === req.user._id.toString());
 
     if (!isMember) {
       return res.status(403).json({ message: 'Not authorized to view repository data' });

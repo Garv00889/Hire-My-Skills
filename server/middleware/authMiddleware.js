@@ -65,6 +65,14 @@ const requirePermission = (permission) => {
       return next();
     }
 
+    // Default to true for administrative staff (moderator/support) unless permission is explicitly disabled
+    if (
+      (req.user.role === 'moderator' || req.user.role === 'support') &&
+      (!req.user.adminPermissions || req.user.adminPermissions[permission] !== false)
+    ) {
+      return next();
+    }
+
     if (req.user.adminPermissions && req.user.adminPermissions[permission]) {
       return next();
     }

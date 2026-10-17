@@ -6,6 +6,16 @@ const cookieParser = require('cookie-parser');
 const dns = require('dns');
 require('dotenv').config();
 
+// Global Crash Guards: Prevent unexpected uncaught errors or unhandled rejections from crashing the process
+process.on('uncaughtException', (err) => {
+  console.error('💥 [CRASH GUARD] Uncaught Exception:', err.message);
+  console.error(err.stack);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('⚠️ [CRASH GUARD] Unhandled Promise Rejection:', reason);
+});
+
 // Fix Windows DNS resolution for MongoDB Atlas SRV
 try {
   dns.setServers(['8.8.8.8', '1.1.1.1']);
@@ -25,6 +35,7 @@ const chatRoutes = require('./routes/chatRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const uploadRoutes = require('./routes/uploadRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const githubRoutes = require('./routes/githubRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -52,7 +63,12 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-app.use(express.json());
+// Capture rawBody for GitHub Webhook HMAC SHA-256 signature verification
+app.use(express.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf ? buf.toString() : '';
+  }
+}));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(passport.initialize());
@@ -71,6 +87,7 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/github', githubRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
@@ -153,17 +170,109 @@ const ensureSuperAdmin = async () => {
 };
 
 const PORT = process.env.PORT || 5000;
+let listenAttempts = 0;
+const MAX_LISTEN_ATTEMPTS = 3;
 
-const startServer = async () => {
-  await connectDB();
-  await ensureSuperAdmin();
-  // Run cleanup on startup and every 60 minutes
-  runCleanupJob();
-  setInterval(runCleanupJob, 60 * 60 * 1000);
-
-  server.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
+/**
+ * Free any lingering zombie process on port (especially on Windows during rapid nodemon restarts)
+ */
+const killProcessOnPort = (port) => {
+  return new Promise((resolve) => {
+    if (process.platform !== 'win32') {
+      const { exec } = require('child_process');
+      exec(`lsof -ti:${port} | xargs kill -9 2>/dev/null`, () => resolve());
+      return;
+    }
+    const { exec } = require('child_process');
+    exec(`netstat -ano | findstr :${port}`, (err, stdout) => {
+      if (err || !stdout) return resolve();
+      const lines = stdout.trim().split('\n');
+      const pids = new Set();
+      lines.forEach((line) => {
+        const parts = line.trim().split(/\s+/);
+        const pid = parts[parts.length - 1];
+        if (pid && pid !== '0' && pid !== String(process.pid)) {
+          pids.add(pid);
+        }
+      });
+      if (pids.size === 0) return resolve();
+      let done = 0;
+      pids.forEach((pid) => {
+        exec(`taskkill /F /PID ${pid}`, () => {
+          done++;
+          if (done === pids.size) resolve();
+        });
+      });
+    });
   });
 };
 
-startServer();
+server.on('error', async (err) => {
+  if (err.code === 'EADDRINUSE') {
+    listenAttempts++;
+    console.warn(`⚠️ [PORT OCCUPIED] Port ${PORT} is busy (attempt ${listenAttempts}/${MAX_LISTEN_ATTEMPTS}). Freeing port...`);
+    if (listenAttempts <= MAX_LISTEN_ATTEMPTS) {
+      await killProcessOnPort(PORT);
+      setTimeout(() => {
+        try {
+          server.close();
+        } catch (_) {}
+        server.listen(PORT, () => {
+          console.log(`🚀 Server running on http://localhost:${PORT}`);
+        });
+      }, 1000);
+    } else {
+      console.error(`❌ Port ${PORT} remains occupied after ${MAX_LISTEN_ATTEMPTS} attempts. Please free port ${PORT} manually.`);
+    }
+  } else {
+    console.error('❌ Server error:', err.message);
+  }
+});
+
+// Graceful shutdown handling for nodemon and process signals
+const gracefulShutdown = (signal) => {
+  console.log(`\n🛑 Received ${signal}. Closing server gracefully...`);
+  try {
+    server.close(() => {
+      const mongoose = require('mongoose');
+      mongoose.connection.close(false).then(() => {
+        process.exit(0);
+      }).catch(() => process.exit(0));
+    });
+  } catch (_) {
+    process.exit(0);
+  }
+  setTimeout(() => process.exit(0), 2000).unref();
+};
+
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.once('SIGUSR2', () => {
+  try {
+    server.close(() => {
+      process.kill(process.pid, 'SIGUSR2');
+    });
+  } catch (_) {
+    process.kill(process.pid, 'SIGUSR2');
+  }
+});
+
+const startServer = async () => {
+  try {
+    await connectDB();
+    await ensureSuperAdmin();
+    // Run cleanup on startup and every 60 minutes
+    runCleanupJob();
+    setInterval(runCleanupJob, 60 * 60 * 1000);
+
+    server.listen(PORT, () => {
+      console.log(`🚀 Server running on http://localhost:${PORT}`);
+    });
+  } catch (err) {
+    console.error('❌ Server startup error:', err.message);
+  }
+};
+
+startServer().catch((err) => {
+  console.error('❌ Fatal error during server boot:', err.message);
+});

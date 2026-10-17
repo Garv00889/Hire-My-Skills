@@ -538,3 +538,41 @@
     height: 36px;
   }
 }
+
+/* Ultra-small mobile refinements (<= 360px) */
+@media (max-width: 360px) {
+  .navbar {
+    padding: 0 10px;
+    width: 96%;
+    height: 56px;
+    top: 6px;
+  }
+
+  .nav-logo {
+    font-size: 14px;
+    gap: 6px;
+  }
+
+  .nav-logo svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .nav-mobile-actions {
+    gap: 6px;
+  }
+
+  .mobile-quick-bell,
+  .mobile-hamburger-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+
+  .mobile-nav-drawer {
+    top: 68px;
+    left: 8px;
+    right: 8px;
+    padding: 12px;
+  }
+}

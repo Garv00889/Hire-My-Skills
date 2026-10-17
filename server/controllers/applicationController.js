@@ -2,6 +2,7 @@ const Application = require('../models/Application');
 const Project = require('../models/Project');
 const Notification = require('../models/Notification');
 const User = require('../models/User');
+const mongoose = require('mongoose');
 
 // @desc    Apply to a project
 // @route   POST /api/applications/:projectId
@@ -10,11 +11,16 @@ const applyToProject = async (req, res) => {
     const { projectId } = req.params;
     const { message } = req.body;
 
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
     const project = await Project.findById(projectId).populate('creator');
     if (!project) return res.status(404).json({ message: 'Project not found' });
 
     // Can't apply to your own project
-    if (project.creator._id.toString() === req.user._id.toString()) {
+    const creatorId = project.creator?._id || project.creator;
+    if (creatorId && creatorId.toString() === req.user._id.toString()) {
       return res.status(400).json({ message: 'You cannot apply to your own project' });
     }
 
@@ -30,25 +36,27 @@ const applyToProject = async (req, res) => {
       message: message || '',
     });
 
-    // Create notification for project creator
-    const applicantUser = await User.findById(req.user._id);
-    await Notification.create({
-      recipient: project.creator._id,
-      sender: req.user._id,
-      type: 'application_received',
-      message: `${applicantUser.name} applied to your project "${project.title}"`,
-      relatedProject: projectId,
-      relatedApplication: application._id,
-    });
-
-    // Emit socket notification (handled in socket.js via global io)
-    if (global.io) {
-      global.io.to(project.creator._id.toString()).emit('new-notification', {
+    // Create notification for project creator if creator exists
+    if (creatorId) {
+      const applicantUser = await User.findById(req.user._id);
+      await Notification.create({
+        recipient: creatorId,
+        sender: req.user._id,
         type: 'application_received',
-        message: `${applicantUser.name} applied to "${project.title}"`,
-        applicant: { name: applicantUser.name, profilePicture: applicantUser.profilePicture },
-        projectId,
+        message: `${applicantUser.name} applied to your project "${project.title}"`,
+        relatedProject: projectId,
+        relatedApplication: application._id,
       });
+
+      // Emit socket notification (handled in socket.js via global io)
+      if (global.io) {
+        global.io.to(creatorId.toString()).emit('new-notification', {
+          type: 'application_received',
+          message: `${applicantUser.name} applied to "${project.title}"`,
+          applicant: { name: applicantUser.name, profilePicture: applicantUser.profilePicture },
+          projectId,
+        });
+      }
     }
 
     res.status(201).json({ message: 'Application submitted!', application });
@@ -84,9 +92,14 @@ const getProjectApplications = async (req, res) => {
   try {
     await cleanExpiredApplications();
 
+    if (!mongoose.Types.ObjectId.isValid(req.params.projectId)) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+
     const project = await Project.findById(req.params.projectId);
     if (!project) return res.status(404).json({ message: 'Project not found' });
-    if (project.creator.toString() !== req.user._id.toString()) {
+    const creatorId = project.creator?._id || project.creator;
+    if (!creatorId || creatorId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
@@ -145,23 +158,30 @@ const getDeclinedApplications = async (req, res) => {
 const updateApplicationStatus = async (req, res) => {
   try {
     const { status } = req.body; // 'approved', 'rejected', or 'temporarily_declined'
+
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+
     const application = await Application.findById(req.params.id)
       .populate('project')
       .populate('applicant', 'name email');
 
     if (!application) return res.status(404).json({ message: 'Application not found' });
-    if (application.project.creator.toString() !== req.user._id.toString()) {
+    const projectCreatorId = application.project?.creator?._id || application.project?.creator;
+    if (!projectCreatorId || projectCreatorId.toString() !== req.user._id.toString()) {
       return res.status(403).json({ message: 'Not authorized' });
     }
 
     if (status === 'approved') {
       const projectDoc = await Project.findById(application.project._id);
       const maxMembers = projectDoc.membersRequired || 3;
+      const creatorDocId = projectDoc.creator?._id || projectDoc.creator;
       const nonCreatorMembers = (projectDoc.members || []).filter(
-        (m) => m.toString() !== projectDoc.creator.toString()
+        (m) => m && (!creatorDocId || m.toString() !== creatorDocId.toString())
       );
       const alreadyMember = (projectDoc.members || []).some(
-        (m) => m.toString() === application.applicant._id.toString()
+        (m) => m?.toString() === application.applicant?._id?.toString()
       );
 
       if (!alreadyMember && nonCreatorMembers.length >= maxMembers) {

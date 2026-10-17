@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import {
   User, Mail, MapPin, Phone, Globe,
   Briefcase, Code, Plus, Trash2, Edit3, ExternalLink, ShieldCheck,
-  Award, Sparkles, Check, X, Layers, ArrowRight, Star, GitBranch,
+  Award, Sparkles, X, Layers,
   GraduationCap
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
@@ -31,9 +31,18 @@ const TwitterIcon = ({ size = 15 }) => (
   </svg>
 );
 
+const ensureAbsoluteUrl = (url) => {
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (!trimmed) return '';
+  if (/^(?:f|ht)tps?:\/\//i.test(trimmed) || trimmed.startsWith('mailto:') || trimmed.startsWith('tel:')) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+};
+
 const ProfilePage = () => {
   const { userId } = useParams();
-  const navigate = useNavigate();
   const { user: currentUser, login: updateAuthUser } = useAuth();
 
   const isOwnProfile = !userId || userId === currentUser?._id;
@@ -83,7 +92,7 @@ const ProfilePage = () => {
         const { data } = await getUserProfile(userId);
         setProfile(data);
       }
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to load user profile');
     } finally {
       setLoading(false);
@@ -313,25 +322,25 @@ const ProfilePage = () => {
               {/* Social Links Bar */}
               <div className="hero-social-bar">
                 {profile.socialLinks?.github || profile.githubLink ? (
-                  <a href={profile.socialLinks?.github || profile.githubLink} target="_blank" rel="noreferrer" className="social-pill" title="GitHub">
+                  <a href={ensureAbsoluteUrl(profile.socialLinks?.github || profile.githubLink)} target="_blank" rel="noreferrer" className="social-pill" title="GitHub">
                     <GithubIcon size={15} /> <span>GitHub</span>
                   </a>
                 ) : null}
 
                 {profile.socialLinks?.linkedin && (
-                  <a href={profile.socialLinks.linkedin} target="_blank" rel="noreferrer" className="social-pill" title="LinkedIn">
+                  <a href={ensureAbsoluteUrl(profile.socialLinks.linkedin)} target="_blank" rel="noreferrer" className="social-pill" title="LinkedIn">
                     <LinkedinIcon size={15} /> <span>LinkedIn</span>
                   </a>
                 )}
 
                 {profile.socialLinks?.portfolio && (
-                  <a href={profile.socialLinks.portfolio} target="_blank" rel="noreferrer" className="social-pill" title="Portfolio Website">
+                  <a href={ensureAbsoluteUrl(profile.socialLinks.portfolio)} target="_blank" rel="noreferrer" className="social-pill" title="Portfolio Website">
                     <Globe size={15} /> <span>Portfolio</span>
                   </a>
                 )}
 
                 {profile.socialLinks?.twitter && (
-                  <a href={profile.socialLinks.twitter} target="_blank" rel="noreferrer" className="social-pill" title="Twitter / X">
+                  <a href={ensureAbsoluteUrl(profile.socialLinks.twitter)} target="_blank" rel="noreferrer" className="social-pill" title="Twitter / X">
                     <TwitterIcon size={15} /> <span>Twitter</span>
                   </a>
                 )}
@@ -417,12 +426,12 @@ const ProfilePage = () => {
                           <h4 className="proj-title">{proj.title}</h4>
                           <div className="proj-links flex-center gap-8">
                             {proj.githubLink && (
-                              <a href={proj.githubLink} target="_blank" rel="noreferrer" className="icon-link-btn" title="GitHub Repo">
+                              <a href={ensureAbsoluteUrl(proj.githubLink)} target="_blank" rel="noreferrer" className="icon-link-btn" title="GitHub Repo">
                                 <GithubIcon size={15} />
                               </a>
                             )}
                             {proj.liveLink && (
-                              <a href={proj.liveLink} target="_blank" rel="noreferrer" className="icon-link-btn" title="Live Preview">
+                              <a href={ensureAbsoluteUrl(proj.liveLink)} target="_blank" rel="noreferrer" className="icon-link-btn" title="Live Preview">
                                 <ExternalLink size={15} />
                               </a>
                             )}
@@ -507,7 +516,7 @@ const ProfilePage = () => {
                             <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>{cert.issuer} {cert.issueDate ? `· ${cert.issueDate}` : ''}</span>
                           </div>
                           {cert.credentialUrl && (
-                            <a href={cert.credentialUrl} target="_blank" rel="noreferrer" className="icon-link-btn" title="View Credential">
+                            <a href={ensureAbsoluteUrl(cert.credentialUrl)} target="_blank" rel="noreferrer" className="icon-link-btn" title="View Credential">
                               <ExternalLink size={15} />
                             </a>
                           )}

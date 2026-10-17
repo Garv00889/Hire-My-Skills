@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import {
-  Sparkles, Users, Search, CheckCircle2, MessageSquare,
-  ShieldCheck, Rocket, Heart, Award, ArrowRight, Layers,
+  Sparkles, Search, CheckCircle2, MessageSquare,
+  ShieldCheck, ArrowRight, Layers,
   Code, Zap, Compass, Target, Eye, UserCheck
 } from 'lucide-react';
 import Navbar from '../components/Navbar';

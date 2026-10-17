@@ -2,13 +2,14 @@
   position: fixed;
   inset: 0;
   background-color: rgba(17, 24, 39, 0.6);
-  backdrop-filter: blur(4px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
-  animation: fadeIn 0.15s ease-out;
+  animation: hmsModalBackdrop var(--duration-fast) var(--ease-out-smooth) both;
 }
 
 .admin-modal-dialog {
@@ -18,8 +19,8 @@
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-  animation: modalScaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.16);
+  animation: hmsModalContent var(--duration-normal) var(--ease-spring) both;
   overflow: hidden;
   border: 1px solid #E8E5DF;
 }

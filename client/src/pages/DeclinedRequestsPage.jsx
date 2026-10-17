@@ -33,7 +33,7 @@ const DeclinedRequestsPage = () => {
       setLoading(true);
       const { data } = await getDeclinedApplications();
       setDeclinedApps(data || []);
-    } catch (err) {
+    } catch (_err) {
       toast.error('Failed to load declined requests');
       setDeclinedApps([]);
     } finally {

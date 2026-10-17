@@ -1,19 +1,30 @@
+const mongoose = require('mongoose');
 const Message = require('../models/Message');
 const Project = require('../models/Project');
+
+// Helper to check if user is creator or member
+const checkProjectAuth = (project, userId) => {
+  if (!project) return false;
+  const myId = userId.toString();
+  const creatorId = (project.creator?._id || project.creator)?.toString();
+  if (creatorId && creatorId === myId) return true;
+  return (project.members || []).some(m => (m?._id || m)?.toString() === myId);
+};
 
 // @desc    Get all messages for a project
 // @route   GET /api/chat/:projectId/messages
 const getMessages = async (req, res) => {
   try {
     const { projectId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      return res.status(404).json({ message: 'Invalid project ID format' });
+    }
 
     // Verify user is a member of the project
     const project = await Project.findById(projectId);
     if (!project) return res.status(404).json({ message: 'Project not found' });
 
-    const isAuthorized = project.creator.toString() === req.user._id.toString() ||
-      project.members.some(m => m.toString() === req.user._id.toString());
-    if (!isAuthorized) {
+    if (!checkProjectAuth(project, req.user._id)) {
       return res.status(403).json({ message: 'You are not an authorized member of this project' });
     }
 
@@ -33,13 +44,16 @@ const getMessages = async (req, res) => {
 const uploadFile = async (req, res) => {
   try {
     const { projectId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      return res.status(404).json({ message: 'Invalid project ID format' });
+    }
 
     const project = await Project.findById(projectId);
     if (!project) return res.status(404).json({ message: 'Project not found' });
 
-    const isAuthorized = project.creator.toString() === req.user._id.toString() ||
-      project.members.some(m => m.toString() === req.user._id.toString());
-    if (!isAuthorized) return res.status(403).json({ message: 'Not authorized' });
+    if (!checkProjectAuth(project, req.user._id)) {
+      return res.status(403).json({ message: 'Not authorized' });
+    }
 
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
 
@@ -77,13 +91,14 @@ const createMessage = async (req, res) => {
       return res.status(400).json({ message: 'Message content cannot be empty' });
     }
 
+    if (!mongoose.Types.ObjectId.isValid(projectId)) {
+      return res.status(404).json({ message: 'Invalid project ID format' });
+    }
+
     const project = await Project.findById(projectId);
     if (!project) return res.status(404).json({ message: 'Project not found' });
 
-    const isAuthorized =
-      project.creator.toString() === req.user._id.toString() ||
-      project.members.some((m) => m.toString() === req.user._id.toString());
-    if (!isAuthorized) {
+    if (!checkProjectAuth(project, req.user._id)) {
       return res.status(403).json({ message: 'You are not an authorized member of this project' });
     }
 

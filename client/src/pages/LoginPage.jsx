@@ -1,19 +1,24 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, ArrowRight, Users, Briefcase, TrendingUp, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, ArrowRight, X, KeyRound, CheckCircle2 } from 'lucide-react';
 import { loginUser, getMeWithToken } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
 import './LoginPage.css';
 
-const LoginPage = () => {
+const LoginPage = ({ showForgotModalInitial = false }) => {
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(showForgotModalInitial);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotSubmitted, setForgotSubmitted] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from || '/home';
+  const rawFrom = location.state?.from;
+  const from = (rawFrom && rawFrom !== '/login' && rawFrom !== '/signup' && rawFrom !== '/forgot-password') ? rawFrom : '/home';
 
   // 🔹 OAuth (Google & GitHub) Token & Error Receiver Logic
   useEffect(() => {
@@ -98,87 +103,45 @@ const LoginPage = () => {
 
   return (
     <div className="login-split-page">
-      {/* ─── Left Section: Brand Messaging, Trust & Value Propositions ─── */}
-      <section className="login-left-section" aria-label="Brand Overview and Values">
+      {/* ─── Left Section: Logo at Top-Left & Centered 3-Line Big Headline ─── */}
+      <section className="login-left-section" aria-label="Brand Overview">
+        {/* Brand Logo & Name at Top-Left with 100-120px margin */}
+        <div className="login-top-logo-block anim-stagger-1">
+          <Link to="/" className="brand-logo-link" aria-label="HireMySkills Home">
+            <div className="brand-logo-badge">
+              <svg width="34" height="34" viewBox="0 0 32 32" fill="none">
+                <rect x="2" y="2" width="12" height="12" rx="3" fill="#F5A623" />
+                <rect x="18" y="2" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5" />
+                <rect x="2" y="18" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5" />
+                <rect x="18" y="18" width="12" height="12" rx="3" fill="#F5A623" />
+              </svg>
+            </div>
+            <span className="brand-logo-name">HireMySkills</span>
+          </Link>
+        </div>
+
+        {/* Big 3-Line Headline */}
         <div className="login-brand-wrapper">
-          {/* Brand Logo Header */}
-          <div className="brand-header-block anim-stagger-1">
-            <Link to="/" className="brand-logo-link" aria-label="HireMySkills Home">
-              <div className="brand-logo-badge">
-                <svg width="34" height="34" viewBox="0 0 32 32" fill="none">
-                  <rect x="2" y="2" width="12" height="12" rx="3" fill="#F5A623" />
-                  <rect x="18" y="2" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5" />
-                  <rect x="2" y="18" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5" />
-                  <rect x="18" y="18" width="12" height="12" rx="3" fill="#F5A623" />
-                </svg>
-              </div>
-              <span className="brand-logo-name">HireMySkills</span>
-            </Link>
-          </div>
-
-          {/* Headline and Supporting Description */}
           <div className="brand-statement-block anim-stagger-2">
-            <div className="statement-pill">
-              <Sparkles size={14} className="statement-pill-icon" />
-              <span>The Marketplace for Real Talent</span>
-            </div>
             <h1 className="brand-hero-headline">
-              Great Skills. Better Connections. Endless Possibilities.
+              <span className="hero-line">Great <span className="highlight-orange">Skills.</span></span>
+              <span className="hero-line">Better <span className="highlight-orange">Connections.</span></span>
+              <span className="hero-line"><span className="highlight-orange">Endless</span> Possibilities.</span>
             </h1>
-            <p className="brand-hero-description">
-              Your next opportunity starts here. Connect with talented professionals, collaborate on meaningful projects, and turn your skills into something extraordinary.
-            </p>
-          </div>
-
-          {/* Trust and Collaboration Highlights */}
-          <div className="trust-highlights-list anim-stagger-3">
-            <div className="trust-highlight-card">
-              <div className="trust-icon-box">
-                <Users size={20} />
-              </div>
-              <div className="trust-highlight-content">
-                <span className="trust-highlight-title">Build meaningful professional connections.</span>
-                <span className="trust-highlight-desc">Connect directly with clients, mentors, and skilled peers in a vetted community.</span>
-              </div>
-            </div>
-
-            <div className="trust-highlight-card">
-              <div className="trust-icon-box">
-                <Briefcase size={20} />
-              </div>
-              <div className="trust-highlight-content">
-                <span className="trust-highlight-title">Collaborate with skilled people and teams.</span>
-                <span className="trust-highlight-desc">Work on high-impact projects with transparent milestones and real-time delivery.</span>
-              </div>
-            </div>
-
-            <div className="trust-highlight-card">
-              <div className="trust-icon-box">
-                <TrendingUp size={20} />
-              </div>
-              <div className="trust-highlight-content">
-                <span className="trust-highlight-title">Discover opportunities to grow and showcase your talent.</span>
-                <span className="trust-highlight-desc">Build your verified portfolio, earn reputation badges, and scale your career.</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Tagline Card */}
-          <div className="bottom-tagline-card anim-stagger-4">
-            <div className="tagline-spark-icon">
-              <CheckCircle2 size={18} />
-            </div>
-            <p className="bottom-tagline-text">
-              &ldquo;Your skills deserve the right platform. Let&rsquo;s build something great together.&rdquo;
-            </p>
           </div>
         </div>
+
+        {/* Static Blurred Orange Circle at Bottom-Left (1/4 visible background effect) */}
+        <div className="bottom-left-blur-circle" aria-hidden="true" />
+
+        {/* Static Blurred Orange Circle at Top-Right/Center seam of Left Section (behind the white divider) */}
+        <div className="top-center-blur-circle" aria-hidden="true" />
       </section>
 
-      {/* ─── Right Section: Plain White, Clean & Polished Login Form ─── */}
+      {/* ─── Right Section: Plain White Login Form ─── */}
       <section className="login-right-section" aria-label="User Login Form">
         <div className="login-form-wrapper">
-          {/* Mobile brand header (shown only when sections stack on small screens) */}
+          {/* Mobile brand header (shown only when sections stack on mobile) */}
           <div className="mobile-brand-row">
             <Link to="/" className="brand-logo-link" aria-label="HireMySkills Home">
               <div className="brand-logo-badge">
@@ -229,9 +192,17 @@ const LoginPage = () => {
                 <label htmlFor="login-password" className="field-label">
                   Password
                 </label>
-                <Link to="/forgot-password" className="forgot-pw-link">
+                <button
+                  type="button"
+                  className="forgot-pw-link"
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}
+                  onClick={() => {
+                    setShowForgotModal(true);
+                    setForgotSubmitted(false);
+                  }}
+                >
                   Forgot password?
-                </Link>
+                </button>
               </div>
               <div className="input-container">
                 <Lock className="input-icon" size={17} />
@@ -323,15 +294,116 @@ const LoginPage = () => {
           <footer className="login-minimal-footer anim-stagger-6">
             <span>© 2026 HireMySkills</span>
             <div className="footer-links-group">
-              <a href="#">Privacy</a>
+              <Link to="/about">About</Link>
               <span className="footer-dot">·</span>
-              <a href="#">Terms</a>
+              <a href="mailto:support@hiremyskills.com">Support</a>
               <span className="footer-dot">·</span>
-              <a href="#">Contact</a>
+              <Link to="/explore">Explore</Link>
             </div>
           </footer>
         </div>
       </section>
+
+      {/* Forgot Password Modal */}
+      {showForgotModal && (
+        <div
+          className="login-required-overlay"
+          onClick={() => setShowForgotModal(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="login-required-modal"
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: 440 }}
+          >
+            <button
+              type="button"
+              className="lrm-close"
+              onClick={() => setShowForgotModal(false)}
+              aria-label="Close"
+            >
+              <X size={18} />
+            </button>
+
+            <div className="lrm-icon">
+              <KeyRound size={26} color="var(--gold)" />
+            </div>
+
+            <h2 className="lrm-title">Reset Your Password</h2>
+            <p className="lrm-desc">
+              Enter your registered email address and we'll send you instructions to reset your account password.
+            </p>
+
+            {forgotSubmitted ? (
+              <div style={{ textAlign: 'center', padding: '16px 0', width: '100%' }}>
+                <CheckCircle2 size={38} color="#2E7D32" style={{ margin: '0 auto 10px' }} />
+                <p style={{ fontWeight: 600, color: '#2E7D32', marginBottom: 6 }}>Instructions Sent!</p>
+                <p style={{ fontSize: 13, color: 'var(--text-secondary)' }}>
+                  If an account exists for <strong>{forgotEmail}</strong>, password reset steps have been dispatched to your inbox.
+                </p>
+                <button
+                  type="button"
+                  className="lrm-btn-login"
+                  style={{ marginTop: 18, width: '100%' }}
+                  onClick={() => {
+                    setShowForgotModal(false);
+                    setForgotSubmitted(false);
+                  }}
+                >
+                  Return to Sign In
+                </button>
+              </div>
+            ) : (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!forgotEmail.trim()) {
+                    toast.error('Please enter your email address');
+                    return;
+                  }
+                  setForgotLoading(true);
+                  setTimeout(() => {
+                    setForgotLoading(false);
+                    setForgotSubmitted(true);
+                    toast.success('Password reset link sent to your email.');
+                  }, 500);
+                }}
+                style={{ width: '100%', marginTop: 14 }}
+              >
+                <div className="input-container" style={{ marginBottom: 16 }}>
+                  <Mail className="input-icon" size={17} />
+                  <input
+                    type="email"
+                    placeholder="Enter your registered email"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    required
+                    autoFocus
+                  />
+                </div>
+
+                <div className="lrm-actions" style={{ flexDirection: 'column', gap: 10 }}>
+                  <button type="submit" className="lrm-btn-login" disabled={forgotLoading}>
+                    {forgotLoading ? 'Sending...' : 'Send Reset Link'}
+                  </button>
+                  <button
+                    type="button"
+                    className="lrm-btn-signup"
+                    onClick={() => setShowForgotModal(false)}
+                  >
+                    Back to Login
+                  </button>
+                </div>
+
+                <p style={{ fontSize: 12, color: 'var(--text-muted)', textAlign: 'center', marginTop: 14 }}>
+                  Need immediate help? Contact <a href="mailto:support@hiremyskills.com" style={{ color: 'var(--gold-dark)', fontWeight: 600 }}>support@hiremyskills.com</a>
+                </p>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

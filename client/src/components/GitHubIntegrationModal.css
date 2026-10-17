@@ -1,0 +1,865 @@
+/* ====================================================
+   GitHubIntegrationModal.css — GitHub Workspace Panel
+   ==================================================== */
+
+.github-modal-box {
+  width: 100%;
+  max-width: 620px;
+  max-height: 85vh;
+  background: #FFFFFF;
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  animation: hmsModalContent var(--duration-normal) var(--ease-spring) both;
+}
+
+.github-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid #ECE7DD;
+  background: #FAF9F6;
+}
+
+.header-title-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.github-header-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #181717;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.github-modal-title {
+  font-size: 17.5px;
+  font-weight: 800;
+  color: #1A1A1A;
+  margin: 0 0 3px 0;
+  letter-spacing: -0.3px;
+}
+
+.github-modal-sub {
+  font-size: 12.5px;
+  color: #6C685E;
+  margin: 0;
+}
+
+/* ─── Tabs Bar ─── */
+.github-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #ECE7DD;
+  overflow-x: auto;
+}
+
+.github-tab-btn {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6C685E;
+  background: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.18s ease;
+}
+
+.github-tab-btn:hover {
+  background: #F4F1EA;
+  color: #1A1A1A;
+}
+
+.github-tab-btn.active {
+  background: #FFF7EB;
+  color: #D4891A;
+  font-weight: 700;
+}
+
+/* ─── Modal Body ─── */
+.github-modal-body {
+  padding: 22px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.github-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 0;
+  color: #6C685E;
+  font-size: 13.5px;
+}
+
+/* ─── Cards in Overview ─── */
+.account-status-card {
+  padding: 16px 18px;
+  background: #FAF9F6;
+  border: 1px solid #ECE7DD;
+  border-radius: 12px;
+  margin-bottom: 18px;
+}
+
+.account-info-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.account-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #181717;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.account-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.account-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.account-name-row strong {
+  font-size: 14.5px;
+  color: #1A1A1A;
+}
+
+.account-sub {
+  font-size: 12.5px;
+  color: #6C685E;
+}
+
+.badge-connected {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #E8F5E9;
+  color: #2E7D32;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.badge-disconnected {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #FFEBEE;
+  color: #C62828;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.btn-github-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: #24292F;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-github-action:hover {
+  opacity: 0.9;
+}
+
+.btn-danger-outline {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #FFCDD2;
+  background: #FFF;
+  color: #D32F2F;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-danger-outline:hover {
+  background: #FFEBEE;
+}
+
+/* ─── Repo Status Card ─── */
+.repo-status-card {
+  padding: 18px 20px;
+  background: #FFFFFF;
+  border: 1px solid #ECE7DD;
+  border-radius: 12px;
+}
+
+.section-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin: 0 0 14px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.repo-details-box {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.repo-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.repo-display-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1A1A1A;
+  margin: 0;
+}
+
+.repo-privacy-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: #FAF9F6;
+  border: 1px solid #E2DFD7;
+  font-size: 11px;
+  font-weight: 600;
+  color: #4A4843;
+}
+
+.repo-display-desc {
+  font-size: 13px;
+  color: #5C584E;
+  margin: 0 0 6px 0;
+}
+
+.repo-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #8C887E;
+}
+
+.repo-meta-row code {
+  background: #FAF9F6;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-family: monospace;
+  color: #1A1A1A;
+}
+
+.repo-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-open-github {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #FAF9F6;
+  border: 1.5px solid #E2DFD7;
+  border-radius: 9px;
+  color: #1A1A1A;
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.18s;
+}
+
+.btn-open-github:hover {
+  border-color: #D4891A;
+  color: #D4891A;
+  background: #FFF;
+}
+
+.btn-unlink-repo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 10px;
+  background: #FFF;
+  border: 1px solid #FFCDD2;
+  border-radius: 9px;
+  color: #D32F2F;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-unlink-repo:hover {
+  background: #FFEBEE;
+}
+
+.quick-git-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px dashed #ECE7DD;
+}
+
+.git-link-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: 8px;
+  background: #FAF9F6;
+  border: 1px solid #ECE7DD;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4A4843;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.16s ease;
+}
+
+.git-link-chip:hover {
+  background: #FFF7EB;
+  border-color: #F5A623;
+  color: #D4891A;
+}
+
+/* ─── Empty State ─── */
+.empty-repo-card {
+  text-align: center;
+  padding: 24px 16px;
+}
+
+.empty-repo-card h5 {
+  font-size: 15px;
+  font-weight: 800;
+  color: #1A1A1A;
+  margin: 12px 0 6px;
+}
+
+.empty-repo-card p {
+  font-size: 13px;
+  color: #6C685E;
+  margin: 0 0 16px;
+  max-width: 440px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.empty-repo-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+/* ─── Warning / Alerts ─── */
+.warning-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #FFF8E1;
+  border: 1px solid #FFE082;
+  color: #F57F17;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.warning-banner p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #8D6E63;
+}
+
+/* ─── Forms ─── */
+.git-action-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #2D2B26;
+}
+
+.form-group .req {
+  color: #D32F2F;
+}
+
+.field-hint {
+  font-size: 11.5px;
+  color: #8C887E;
+}
+
+.form-row-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #FAF9F6;
+  border: 1px solid #ECE7DD;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  color: #38342C;
+  cursor: pointer;
+}
+
+.checkbox-label input {
+  margin-top: 3px;
+  accent-color: #F5A623;
+}
+
+.modal-form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.or-divider-row {
+  text-align: center;
+  font-size: 12px;
+  color: #8C887E;
+  margin: 4px 0;
+  position: relative;
+}
+
+.or-divider-row::before,
+.or-divider-row::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 25%;
+  height: 1px;
+  background: #ECE7DD;
+}
+
+.or-divider-row::before { left: 10px; }
+.or-divider-row::after { right: 10px; }
+
+/* ─── Team Access List ─── */
+.collaborator-rows-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.collab-member-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: #FAF9F6;
+  border: 1px solid #ECE7DD;
+}
+
+.collab-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.collab-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #EAE5D9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 13px;
+  color: #4A4843;
+  overflow: hidden;
+}
+
+.collab-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.collab-user-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+}
+
+.collab-gh-username {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #6C685E;
+}
+
+.text-danger-sm {
+  color: #D32F2F;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.badge-admin {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #FFF7EB;
+  color: #D4891A;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.badge-perm {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: #E8F5E9;
+  color: #2E7D32;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.badge-perm.pending {
+  background: #FFF3E0;
+  color: #E65100;
+}
+
+.btn-grant-perm {
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: #24292F;
+  color: #FFFFFF;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.btn-grant-perm:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn-revoke-perm {
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: none;
+  border: 1px solid #FFCDD2;
+  color: #D32F2F;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 8px;
+}
+
+.btn-revoke-perm:hover {
+  background: #FFEBEE;
+}
+
+/* ─── Commits List ─── */
+.modal-commits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-commit-item {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #FAF9F6;
+  border: 1px solid #ECE7DD;
+}
+
+.commit-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.commit-sha-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 6px;
+  background: #FFFFFF;
+  border: 1px solid #E2DFD7;
+  font-family: monospace;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1A1A1A;
+}
+
+.commit-author-name {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #4A4843;
+}
+
+.commit-time-stamp {
+  font-size: 11px;
+  color: #8C887E;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.commit-subject-line {
+  font-size: 13px;
+  color: #1A1A1A;
+  margin: 6px 0;
+  font-family: inherit;
+}
+
+.commit-gh-link {
+  font-size: 11.5px;
+  color: #D4891A;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+}
+
+.commit-gh-link:hover {
+  text-decoration: underline;
+}
+
+.empty-state-box {
+  text-align: center;
+  padding: 36px 16px;
+  color: #6C685E;
+  font-size: 13px;
+}
+
+/* ====================================================
+   Responsive Styles for Mobile & Small Viewports
+   ==================================================== */
+
+@media (max-width: 640px) {
+  .github-modal-box {
+    max-width: 95vw;
+    max-height: 90vh;
+    border-radius: 14px;
+    margin: 8px;
+  }
+
+  .github-modal-header {
+    padding: 16px 18px 14px;
+  }
+
+  .github-header-badge {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+  }
+
+  .github-modal-title {
+    font-size: 16px;
+  }
+
+  .github-modal-body {
+    padding: 16px 18px;
+  }
+
+  .account-status-card {
+    padding: 14px 16px;
+  }
+
+  .account-info-group {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 560px) {
+  .github-modal-box {
+    width: 96vw;
+    margin: 6px;
+  }
+
+  .github-modal-header {
+    padding: 14px 14px 12px;
+  }
+
+  .github-tabs-bar {
+    padding: 6px 10px;
+    gap: 4px;
+  }
+
+  .github-tab-btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .github-modal-body {
+    padding: 14px 12px;
+  }
+
+  .repo-status-card {
+    padding: 14px 12px;
+  }
+
+  .repo-title-row {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .repo-actions-group {
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .btn-open-github,
+  .btn-unlink-repo {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .collab-member-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 10px;
+  }
+
+  .collab-user-info {
+    width: 100%;
+  }
+
+  .collab-status-actions {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .btn-grant-perm {
+    width: 100%;
+    text-align: center;
+    padding: 8px 12px;
+  }
+
+  .empty-repo-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .empty-repo-actions button,
+  .empty-repo-actions a {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .modal-form-actions {
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+
+  .modal-form-actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 380px) {
+  .github-modal-box {
+    width: 98vw;
+    border-radius: 12px;
+    margin: 4px;
+  }
+
+  .github-modal-header {
+    padding: 12px 10px;
+  }
+
+  .github-tabs-bar {
+    padding: 4px 6px;
+  }
+
+  .github-tab-btn {
+    padding: 5px 8px;
+    font-size: 11.5px;
+  }
+
+  .github-modal-body {
+    padding: 12px 8px;
+  }
+
+  .commit-card {
+    padding: 10px;
+  }
+
+  .commit-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+}

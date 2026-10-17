@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
-  Search, Bookmark, Users, Clock, Briefcase, IndianRupee,
-  Monitor, ArrowRight, Check, X, Calendar, TrendingUp, Zap,
-  Target, ChevronDown, Layers, ExternalLink, Send, SlidersHorizontal
+  Search, Users, Clock, Briefcase, IndianRupee,
+  Monitor, ArrowRight, X, TrendingUp, Zap,
+  Layers, ExternalLink, Send, SlidersHorizontal
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import ProjectDetailsModal from '../components/ProjectDetailsModal';
@@ -27,10 +26,8 @@ const SKILLS_LIST = [
 ];
 
 const ExploreProjectsPage = () => {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const { openLoginModal } = useAuthModal();
-  const [searchParams] = useSearchParams();
 
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -54,7 +51,7 @@ const ExploreProjectsPage = () => {
   const fetchProjects = useCallback(async () => {
     setLoading(true);
     try {
-      const params = {};
+      const params = { limit: 50 };
       if (search.trim()) params.search = search.trim();
       if (filters.level !== 'All') params.level = filters.level.toLowerCase();
       if (filters.type !== 'All') params.category = filters.type.toLowerCase();

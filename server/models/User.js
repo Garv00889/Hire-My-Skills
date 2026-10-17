@@ -47,6 +47,9 @@ const userSchema = new mongoose.Schema({
   }],
   googleId: { type: String },
   githubId: { type: String },
+  githubUsername: { type: String, default: '' },
+  githubAccessTokenEncrypted: { type: String, default: '', select: false }, // Never returned in normal queries
+  githubConnectedAt: { type: Date },
   role: {
     type: String,
     enum: ['student', 'client', 'admin', 'superadmin', 'moderator', 'support'],

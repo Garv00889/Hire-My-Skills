@@ -2,20 +2,32 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import {
   Search, Paperclip, Send, ExternalLink, GitBranch,
-  FileText, X, Users, ChevronRight, ChevronLeft, Info,
+  FileText, X, Users, ChevronRight, ChevronLeft,
   Lock, Clock, Crown, Layers, UserCheck, Plus, GitCommit,
-  ShieldAlert, Activity, Sparkles, CheckCheck, MessageSquare, LogIn
+  ShieldAlert, Sparkles, CheckCheck, MessageSquare, LogIn
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import GitHubIcon from '../components/GitHubIcon';
+import GitHubIntegrationModal from '../components/GitHubIntegrationModal';
 import {
   getMyProjects, getProjectById, getMessages, sendChatMessage, uploadChatFile,
-  getProjectCommits, updateProjectGit
+  getProjectCommits
 } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { useAuthModal } from '../context/AuthModalContext';
 import { io } from 'socket.io-client';
 import toast from 'react-hot-toast';
 import './ChatPage.css';
+
+const ensureAbsoluteUrl = (url) => {
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim();
+  if (!trimmed) return '';
+  if (/^(?:f|ht)tps?:\/\//i.test(trimmed) || trimmed.startsWith('mailto:') || trimmed.startsWith('tel:')) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+};
 
 const ChatPage = () => {
   const { projectId } = useParams();
@@ -30,7 +42,6 @@ const ChatPage = () => {
   const [socket, setSocket] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [sending, setSending] = useState(false);
-  const [showMobileDetails, setShowMobileDetails] = useState(false);
 
   // Multi-user typing state: Array of user names currently typing
   const [typingUsers, setTypingUsers] = useState([]);
@@ -47,8 +58,6 @@ const ChatPage = () => {
   const [commits, setCommits] = useState([]);
   const [loadingCommits, setLoadingCommits] = useState(false);
   const [gitModalOpen, setGitModalOpen] = useState(false);
-  const [gitRepoInput, setGitRepoInput] = useState('');
-  const [savingGit, setSavingGit] = useState(false);
 
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -92,6 +101,18 @@ const ChatPage = () => {
   useEffect(() => {
     fetchMyProjects();
   }, [fetchMyProjects]);
+
+  const fetchCommits = useCallback(async (pId) => {
+    try {
+      setLoadingCommits(true);
+      const { data } = await getProjectCommits(pId || projectId);
+      setCommits(data.commits || []);
+    } catch {
+      setCommits([]);
+    } finally {
+      setLoadingCommits(false);
+    }
+  }, [projectId]);
 
   // Load project metadata, messages, commits, and establish real-time socket room
   useEffect(() => {
@@ -224,44 +245,12 @@ const ChatPage = () => {
       setTypingUsers([]);
       setOnlineMembers([]);
     };
-  }, [projectId, user, token]);
+  }, [projectId, user, token, fetchCommits]);
 
   // Auto-scroll on new messages or typing
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, typingUsers]);
-
-  const fetchCommits = async (pId) => {
-    try {
-      setLoadingCommits(true);
-      const { data } = await getProjectCommits(pId || projectId);
-      setCommits(data.commits || []);
-    } catch {
-      setCommits([]);
-    } finally {
-      setLoadingCommits(false);
-    }
-  };
-
-  const handleConnectGit = async (e) => {
-    e.preventDefault();
-    if (!gitRepoInput.trim()) return;
-
-    setSavingGit(true);
-    try {
-      const { data } = await updateProjectGit(projectId, {
-        githubRepo: gitRepoInput.trim(),
-      });
-      setProject(data.project);
-      toast.success('GitHub Repository connected to project.');
-      setGitModalOpen(false);
-      fetchCommits(projectId);
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to connect repository');
-    } finally {
-      setSavingGit(false);
-    }
-  };
 
   // Send message to the project group chat with Dual Sync (Socket.IO + REST fallback)
   const sendMessage = async (e) => {
@@ -626,6 +615,18 @@ const ChatPage = () => {
                     )}
                   </div>
 
+                  {/* GitHub Integration Modal Trigger */}
+                  <button
+                    type="button"
+                    className="header-action-btn github-header-trigger"
+                    onClick={() => setGitModalOpen(true)}
+                    title="GitHub Code Workspace & Repository"
+                  >
+                    <GitHubIcon size={16} />
+                    <span className="github-btn-label">GitHub</span>
+                    {project?.githubRepo && <span className="github-connected-indicator" />}
+                  </button>
+
                   <Link
                     to="/explore"
                     className="header-action-btn"
@@ -733,11 +734,59 @@ const ChatPage = () => {
                               )}
 
                               <div
-                                className={`message-bubble ${isMine ? 'mine' : 'theirs'}`}
+                                className={`message-bubble ${isMine ? 'mine' : 'theirs'} ${msg.isGitActivity ? 'git-activity-bubble' : ''}`}
                               >
-                                {msg.isFile ? (
+                                {msg.isGitActivity && msg.gitActivity ? (
+                                  <div className="chat-git-card">
+                                    <div className="git-card-header">
+                                      <div className="git-badge-type">
+                                        <GitHubIcon size={13} />
+                                        <span>{msg.gitActivity.type?.replace('_', ' ')?.toUpperCase()}</span>
+                                      </div>
+                                      {msg.gitActivity.branch && (
+                                        <span className="git-card-branch">
+                                          <GitBranch size={11} /> {msg.gitActivity.branch}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <h5 className="git-card-title">{msg.gitActivity.title || msg.content}</h5>
+                                    {msg.gitActivity.description && (
+                                      <p className="git-card-desc">{msg.gitActivity.description}</p>
+                                    )}
+
+                                    {/* Commit sub-items list */}
+                                    {msg.gitActivity.commits?.length > 0 && (
+                                      <div className="git-card-commits">
+                                        {msg.gitActivity.commits.map((c, ci) => (
+                                          <a
+                                            key={ci}
+                                            href={ensureAbsoluteUrl(c.url)}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="git-card-commit-row"
+                                          >
+                                            <code>{c.sha}</code>
+                                            <span>{c.message}</span>
+                                          </a>
+                                        ))}
+                                      </div>
+                                    )}
+
+                                    {msg.gitActivity.url && (
+                                      <a
+                                        href={ensureAbsoluteUrl(msg.gitActivity.url)}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="git-card-action-link"
+                                      >
+                                        <span>Inspect on GitHub</span>
+                                        <ExternalLink size={12} />
+                                      </a>
+                                    )}
+                                  </div>
+                                ) : msg.isFile ? (
                                   <a
-                                    href={msg.fileUrl}
+                                    href={ensureAbsoluteUrl(msg.fileUrl)}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="file-attachment-bubble"
@@ -984,7 +1033,6 @@ const ChatPage = () => {
                       padding: 2,
                     }}
                     onClick={() => {
-                      setGitRepoInput(project.githubRepo || '');
                       setGitModalOpen(true);
                     }}
                     title="Connect or Update GitHub Repo"
@@ -997,12 +1045,12 @@ const ChatPage = () => {
               {project.githubRepo ? (
                 <>
                   <a
-                    href={project.githubRepo}
+                    href={ensureAbsoluteUrl(project.githubRepo)}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="git-repo-link"
                   >
-                    {project.githubRepo.replace('https://', '')}
+                    {project.githubRepo.replace(/^https?:\/\//i, '')}
                     <ExternalLink size={12} />
                   </a>
 
@@ -1103,7 +1151,6 @@ const ChatPage = () => {
                         padding: '6px 10px',
                       }}
                       onClick={() => {
-                        setGitRepoInput('');
                         setGitModalOpen(true);
                       }}
                     >
@@ -1117,63 +1164,18 @@ const ChatPage = () => {
         )}
       </div>
 
-      {/* Connect Git Repo Modal */}
+      {/* Comprehensive GitHub Workspace & Repository Integration Modal */}
       {gitModalOpen && (
-        <div className="modal-overlay" onClick={() => setGitModalOpen(false)}>
-          <div
-            className="edit-profile-modal page-enter"
-            style={{ width: 440, padding: 24 }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div
-              className="modal-header flex-between"
-              style={{ padding: 0, marginBottom: 16 }}
-            >
-              <h3>Connect Git Repository</h3>
-              <button
-                className="close-modal-btn"
-                onClick={() => setGitModalOpen(false)}
-              >
-                <X size={16} />
-              </button>
-            </div>
-            <form onSubmit={handleConnectGit}>
-              <p
-                style={{
-                  fontSize: 13,
-                  color: 'var(--text-secondary)',
-                  marginBottom: 14,
-                }}
-              >
-                Enter the GitHub repository URL to grant your team members shared access to code history and commits.
-              </p>
-              <input
-                type="url"
-                className="input-field-custom"
-                placeholder="https://github.com/username/project-repo"
-                value={gitRepoInput}
-                onChange={(e) => setGitRepoInput(e.target.value)}
-                required
-              />
-              <div className="flex-between" style={{ marginTop: 20 }}>
-                <button
-                  type="button"
-                  className="btn-secondary"
-                  onClick={() => setGitModalOpen(false)}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary"
-                  disabled={savingGit}
-                >
-                  {savingGit ? 'Connecting...' : 'Connect Repository'}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+        <GitHubIntegrationModal
+          projectId={projectId}
+          project={project}
+          isOwner={isOwner}
+          onClose={() => setGitModalOpen(false)}
+          onRepoUpdated={(repoUrl) => {
+            setProject((prev) => prev ? { ...prev, githubRepo: repoUrl } : prev);
+            fetchCommits(projectId);
+          }}
+        />
       )}
     </div>
   );

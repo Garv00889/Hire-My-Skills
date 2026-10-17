@@ -18,7 +18,8 @@ const SignupPage = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const from = location.state?.from || '/home';
+  const rawFrom = location.state?.from;
+  const from = (rawFrom && rawFrom !== '/login' && rawFrom !== '/signup') ? rawFrom : '/home';
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -101,6 +102,21 @@ const SignupPage = () => {
 
       <div className="signup-right">
         <div className="signup-card">
+          {/* Mobile brand header (shown only when sections stack on mobile) */}
+          <div className="mobile-brand-row">
+            <Link to="/" className="brand-logo-link" aria-label="HireMySkills Home">
+              <div className="brand-logo-badge">
+                <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+                  <rect x="2" y="2" width="12" height="12" rx="3" fill="#F5A623" />
+                  <rect x="18" y="2" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5" />
+                  <rect x="2" y="18" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5" />
+                  <rect x="18" y="18" width="12" height="12" rx="3" fill="#F5A623" />
+                </svg>
+              </div>
+              <span className="brand-logo-name">HireMySkills</span>
+            </Link>
+          </div>
+
           <div className="login-card-header">
             <h2>Create your account</h2>
             <p>Fill in the details to get started</p>

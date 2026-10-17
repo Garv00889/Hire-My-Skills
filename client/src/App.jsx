@@ -1,39 +1,68 @@
-import ReviewApplicationsPage from './pages/ReviewApplicationsPage';
+import React, { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { AuthModalProvider } from './context/AuthModalContext';
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
+import { useGlobalScrollReveal } from './hooks/useScrollReveal';
 import HomePage from './pages/HomePage';
-import CreateProjectPage from './pages/CreateProjectPage';
-import ExploreProjectsPage from './pages/ExploreProjectsPage';
-import ChatPage from './pages/ChatPage';
-import NotificationsPage from './pages/NotificationsPage';
-import ProfilePage from './pages/ProfilePage';
-import AboutPage from './pages/AboutPage';
-import DeclinedRequestsPage from './pages/DeclinedRequestsPage';
-import AdminLayout from './admin/layouts/AdminLayout';
-import AdminRoute from './admin/routes/AdminRoute';
-import AdminDashboardPage from './admin/pages/AdminDashboardPage';
-import AdminUsersPage from './admin/pages/AdminUsersPage';
-import AdminProjectsPage from './admin/pages/AdminProjectsPage';
-import AdminProposalsPage from './admin/pages/AdminProposalsPage';
-import AdminReadyMadePage from './admin/pages/AdminReadyMadePage';
-import AdminTransactionsPage from './admin/pages/AdminTransactionsPage';
-import AdminCommissionsPage from './admin/pages/AdminCommissionsPage';
-import AdminPayoutsPage from './admin/pages/AdminPayoutsPage';
-import AdminRefundsPage from './admin/pages/AdminRefundsPage';
-import AdminReviewsPage from './admin/pages/AdminReviewsPage';
-import AdminTicketsPage from './admin/pages/AdminTicketsPage';
-import AdminAnnouncementsPage from './admin/pages/AdminAnnouncementsPage';
-import AdminAuditLogsPage from './admin/pages/AdminAuditLogsPage';
-import AdminRolesPage from './admin/pages/AdminRolesPage';
-import AdminSettingsPage from './admin/pages/AdminSettingsPage';
 import './index.css';
 
-// Protected route wrapper
+// Lazy-loaded consumer routes
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const SignupPage = lazy(() => import('./pages/SignupPage'));
+const CreateProjectPage = lazy(() => import('./pages/CreateProjectPage'));
+const ExploreProjectsPage = lazy(() => import('./pages/ExploreProjectsPage'));
+const ChatPage = lazy(() => import('./pages/ChatPage'));
+const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
+const ProfilePage = lazy(() => import('./pages/ProfilePage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
+const DeclinedRequestsPage = lazy(() => import('./pages/DeclinedRequestsPage'));
+const ReviewApplicationsPage = lazy(() => import('./pages/ReviewApplicationsPage'));
+
+// Lazy-loaded admin routes
+const AdminLayout = lazy(() => import('./admin/layouts/AdminLayout'));
+const AdminRoute = lazy(() => import('./admin/routes/AdminRoute'));
+const AdminDashboardPage = lazy(() => import('./admin/pages/AdminDashboardPage'));
+const AdminUsersPage = lazy(() => import('./admin/pages/AdminUsersPage'));
+const AdminProjectsPage = lazy(() => import('./admin/pages/AdminProjectsPage'));
+const AdminProposalsPage = lazy(() => import('./admin/pages/AdminProposalsPage'));
+const AdminReadyMadePage = lazy(() => import('./admin/pages/AdminReadyMadePage'));
+const AdminTransactionsPage = lazy(() => import('./admin/pages/AdminTransactionsPage'));
+const AdminCommissionsPage = lazy(() => import('./admin/pages/AdminCommissionsPage'));
+const AdminPayoutsPage = lazy(() => import('./admin/pages/AdminPayoutsPage'));
+const AdminRefundsPage = lazy(() => import('./admin/pages/AdminRefundsPage'));
+const AdminReviewsPage = lazy(() => import('./admin/pages/AdminReviewsPage'));
+const AdminTicketsPage = lazy(() => import('./admin/pages/AdminTicketsPage'));
+const AdminAnnouncementsPage = lazy(() => import('./admin/pages/AdminAnnouncementsPage'));
+const AdminAuditLogsPage = lazy(() => import('./admin/pages/AdminAuditLogsPage'));
+const AdminRolesPage = lazy(() => import('./admin/pages/AdminRolesPage'));
+const AdminSettingsPage = lazy(() => import('./admin/pages/AdminSettingsPage'));
+
+// High-performance branded PageLoader fallback
+const PageLoader = () => (
+  <div style={{
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: '60vh',
+    width: '100%',
+    gap: '16px',
+    animation: 'hmsFadeIn 0.25s ease-out forwards',
+  }}>
+    <div style={{
+      width: '42px',
+      height: '42px',
+      border: '3px solid rgba(245, 166, 35, 0.2)',
+      borderTopColor: '#F5A623',
+      borderRadius: '50%',
+      animation: 'spin 0.7s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+    }} />
+  </div>
+);
+
+// Protected route wrapper: redirects unauthorized visitors to login with return path
 const ProtectedRoute = ({ children }) => {
   const { user, loading } = useAuth();
   const location = useLocation();
@@ -44,23 +73,35 @@ const ProtectedRoute = ({ children }) => {
     </div>
   );
 
-  return user ? children : <Navigate to="/" state={{ requireLogin: true, from: location.pathname }} replace />;
+  return user ? children : <Navigate to="/login" state={{ from: location.pathname }} replace />;
 };
 
-// Public route wrapper (redirect if logged in)
+// Public route wrapper (redirect if logged in, unless processing OAuth callback)
 const PublicRoute = ({ children }) => {
   const { user } = useAuth();
   const location = useLocation();
-  const from = location.state?.from || '/home';
-  return user ? <Navigate to={from} replace /> : children;
+  const searchParams = new URLSearchParams(location.search);
+  const hasAuthParams = searchParams.has('token') || searchParams.has('error');
+  const rawFrom = location.state?.from;
+  const from = (rawFrom && rawFrom !== '/login' && rawFrom !== '/signup') ? rawFrom : '/home';
+
+  if (user && !hasAuthParams) {
+    return <Navigate to={from} replace />;
+  }
+  return children;
 };
 
 function AppRoutes() {
+  // Attach global observer for scroll-triggered reveal elements
+  useGlobalScrollReveal();
+
   return (
-    <Routes>
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/home" element={<HomePage />} />
       <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+      <Route path="/forgot-password" element={<PublicRoute><LoginPage showForgotModalInitial /></PublicRoute>} />
       <Route path="/signup" element={<PublicRoute><SignupPage /></PublicRoute>} />
       <Route path="/create-project" element={<ProtectedRoute><CreateProjectPage /></ProtectedRoute>} />
       <Route path="/explore" element={<ExploreProjectsPage />} />
@@ -115,7 +156,8 @@ function AppRoutes() {
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+      </Routes>
+    </Suspense>
   );
 }
 
