@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
+import { Eye, EyeOff, Mail, Lock, ArrowRight, Users, Briefcase, TrendingUp, Sparkles, CheckCircle2 } from 'lucide-react';
 import { loginUser, getMeWithToken } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import toast from 'react-hot-toast';
@@ -98,13 +98,13 @@ const LoginPage = () => {
 
   return (
     <div className="login-split-page">
-      {/* ─── Left Section: Login Form & Platform Identity ─── */}
-      <section className="login-left-section">
-        <div className="login-form-container">
-          {/* Brand Logo */}
-          <div className="login-brand-header anim-stagger-1">
-            <Link to="/" className="brand-link" aria-label="HireMySkills Home">
-              <div className="brand-logo-icon">
+      {/* ─── Left Section: Brand Messaging, Trust & Value Propositions ─── */}
+      <section className="login-left-section" aria-label="Brand Overview and Values">
+        <div className="login-brand-wrapper">
+          {/* Brand Logo Header */}
+          <div className="brand-header-block anim-stagger-1">
+            <Link to="/" className="brand-logo-link" aria-label="HireMySkills Home">
+              <div className="brand-logo-badge">
                 <svg width="34" height="34" viewBox="0 0 32 32" fill="none">
                   <rect x="2" y="2" width="12" height="12" rx="3" fill="#F5A623" />
                   <rect x="18" y="2" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5" />
@@ -112,22 +112,99 @@ const LoginPage = () => {
                   <rect x="18" y="18" width="12" height="12" rx="3" fill="#F5A623" />
                 </svg>
               </div>
-              <span className="brand-logo-text">HireMySkills</span>
+              <span className="brand-logo-name">HireMySkills</span>
             </Link>
           </div>
 
-          {/* Heading and Subtitle */}
-          <div className="login-headline-group anim-stagger-2">
-            <h1 className="login-heading">Welcome back</h1>
-            <p className="login-subheading">
-              Log in to your account to collaborate on projects, submit proposals, and grow your freelance career.
+          {/* Headline and Supporting Description */}
+          <div className="brand-statement-block anim-stagger-2">
+            <div className="statement-pill">
+              <Sparkles size={14} className="statement-pill-icon" />
+              <span>The Marketplace for Real Talent</span>
+            </div>
+            <h1 className="brand-hero-headline">
+              Great Skills. Better Connections. Endless Possibilities.
+            </h1>
+            <p className="brand-hero-description">
+              Your next opportunity starts here. Connect with talented professionals, collaborate on meaningful projects, and turn your skills into something extraordinary.
             </p>
           </div>
 
-          {/* Login Form */}
+          {/* Trust and Collaboration Highlights */}
+          <div className="trust-highlights-list anim-stagger-3">
+            <div className="trust-highlight-card">
+              <div className="trust-icon-box">
+                <Users size={20} />
+              </div>
+              <div className="trust-highlight-content">
+                <span className="trust-highlight-title">Build meaningful professional connections.</span>
+                <span className="trust-highlight-desc">Connect directly with clients, mentors, and skilled peers in a vetted community.</span>
+              </div>
+            </div>
+
+            <div className="trust-highlight-card">
+              <div className="trust-icon-box">
+                <Briefcase size={20} />
+              </div>
+              <div className="trust-highlight-content">
+                <span className="trust-highlight-title">Collaborate with skilled people and teams.</span>
+                <span className="trust-highlight-desc">Work on high-impact projects with transparent milestones and real-time delivery.</span>
+              </div>
+            </div>
+
+            <div className="trust-highlight-card">
+              <div className="trust-icon-box">
+                <TrendingUp size={20} />
+              </div>
+              <div className="trust-highlight-content">
+                <span className="trust-highlight-title">Discover opportunities to grow and showcase your talent.</span>
+                <span className="trust-highlight-desc">Build your verified portfolio, earn reputation badges, and scale your career.</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom Tagline Card */}
+          <div className="bottom-tagline-card anim-stagger-4">
+            <div className="tagline-spark-icon">
+              <CheckCircle2 size={18} />
+            </div>
+            <p className="bottom-tagline-text">
+              &ldquo;Your skills deserve the right platform. Let&rsquo;s build something great together.&rdquo;
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── Right Section: Plain White, Clean & Polished Login Form ─── */}
+      <section className="login-right-section" aria-label="User Login Form">
+        <div className="login-form-wrapper">
+          {/* Mobile brand header (shown only when sections stack on small screens) */}
+          <div className="mobile-brand-row">
+            <Link to="/" className="brand-logo-link" aria-label="HireMySkills Home">
+              <div className="brand-logo-badge">
+                <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+                  <rect x="2" y="2" width="12" height="12" rx="3" fill="#F5A623" />
+                  <rect x="18" y="2" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5" />
+                  <rect x="2" y="18" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5" />
+                  <rect x="18" y="18" width="12" height="12" rx="3" fill="#F5A623" />
+                </svg>
+              </div>
+              <span className="brand-logo-name">HireMySkills</span>
+            </Link>
+          </div>
+
+          {/* Form Header */}
+          <div className="login-form-header anim-stagger-1">
+            <h2 className="login-form-title">Welcome back</h2>
+            <p className="login-form-subtitle">
+              Sign in to your account to continue your journey.
+            </p>
+          </div>
+
+          {/* Complete Login Form */}
           <form className="login-main-form" onSubmit={handleSubmit} noValidate>
-            {/* Email Input */}
-            <div className="field-group anim-stagger-3">
+            {/* Email Field */}
+            <div className="field-group anim-stagger-2">
               <label htmlFor="login-email" className="field-label">
                 Email address
               </label>
@@ -146,8 +223,8 @@ const LoginPage = () => {
               </div>
             </div>
 
-            {/* Password Input */}
-            <div className="field-group anim-stagger-4">
+            {/* Password Field */}
+            <div className="field-group anim-stagger-3">
               <div className="field-header-row">
                 <label htmlFor="login-password" className="field-label">
                   Password
@@ -180,7 +257,7 @@ const LoginPage = () => {
             </div>
 
             {/* Submit Button */}
-            <div className="form-submit-group anim-stagger-5">
+            <div className="form-submit-group anim-stagger-4">
               <button
                 id="login-submit"
                 type="submit"
@@ -200,12 +277,12 @@ const LoginPage = () => {
           </form>
 
           {/* Social Divider */}
-          <div className="auth-divider anim-stagger-6">
+          <div className="auth-divider anim-stagger-5">
             <span>or continue with</span>
           </div>
 
           {/* OAuth Buttons */}
-          <div className="oauth-grid anim-stagger-6">
+          <div className="oauth-grid anim-stagger-5">
             <button
               id="google-login"
               className="oauth-action-btn"
@@ -235,7 +312,7 @@ const LoginPage = () => {
           </div>
 
           {/* Sign Up Link */}
-          <div className="signup-switch-row anim-stagger-7">
+          <div className="signup-switch-row anim-stagger-6">
             <span>Don't have an account?</span>{' '}
             <Link to="/signup" state={{ from }} className="signup-switch-link">
               Sign up for free
@@ -243,7 +320,7 @@ const LoginPage = () => {
           </div>
 
           {/* Minimal Footer */}
-          <footer className="login-minimal-footer anim-stagger-7">
+          <footer className="login-minimal-footer anim-stagger-6">
             <span>© 2026 HireMySkills</span>
             <div className="footer-links-group">
               <a href="#">Privacy</a>
@@ -254,11 +331,6 @@ const LoginPage = () => {
             </div>
           </footer>
         </div>
-      </section>
-
-      {/* ─── Right Section: Plain White, Clean & Uncluttered ─── */}
-      <section className="login-right-section" aria-hidden="true">
-        {/* Left intentionally plain white, clean, and open */}
       </section>
     </div>
   );
