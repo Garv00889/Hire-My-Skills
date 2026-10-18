@@ -13,7 +13,16 @@ export const AuthProvider = ({ children }) => {
     }
   });
   const [token, setToken] = useState(() => localStorage.getItem('hms_token') || null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => {
+    try {
+      const storedToken = localStorage.getItem('hms_token');
+      const storedUser = localStorage.getItem('hms_user');
+      // If user & token exist in localStorage, UI is immediately ready (0ms blocking)
+      return Boolean(storedToken && !storedUser);
+    } catch {
+      return false;
+    }
+  });
 
   useEffect(() => {
     const validateSession = async () => {

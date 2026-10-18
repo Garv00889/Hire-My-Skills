@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, Phone, GitBranch, ArrowRight, Plus, X } from 'lucide-react';
 import { registerUser } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import BrandLogo from '../components/BrandLogo';
 import toast from 'react-hot-toast';
 import './SignupPage.css';
 
@@ -76,12 +77,7 @@ const SignupPage = () => {
         <div className="signup-left">
         <div className="login-logo">
           <div className="logo-icon">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <rect x="2" y="2" width="12" height="12" rx="3" fill="#F5A623"/>
-              <rect x="18" y="2" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5"/>
-              <rect x="2" y="18" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5"/>
-              <rect x="18" y="18" width="12" height="12" rx="3" fill="#F5A623"/>
-            </svg>
+            <BrandLogo size={32} />
           </div>
           <span>HireMySkills</span>
         </div>
@@ -106,12 +102,7 @@ const SignupPage = () => {
           <div className="mobile-brand-row">
             <Link to="/" className="brand-logo-link" aria-label="HireMySkills Home">
               <div className="brand-logo-badge">
-                <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-                  <rect x="2" y="2" width="12" height="12" rx="3" fill="#F5A623" />
-                  <rect x="18" y="2" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5" />
-                  <rect x="2" y="18" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5" />
-                  <rect x="18" y="18" width="12" height="12" rx="3" fill="#F5A623" />
-                </svg>
+                <BrandLogo size={28} />
               </div>
               <span className="brand-logo-name">HireMySkills</span>
             </Link>

@@ -29,13 +29,18 @@ const ensureAbsoluteUrl = (url) => {
   return `https://${trimmed}`;
 };
 
+// In-memory SWR cache for chat sidebar projects
+let cachedMyProjects = null;
+let cachedMyProjectsUserId = null;
+
 const ChatPage = () => {
   const { projectId } = useParams();
   const navigate = useNavigate();
   const { user, token } = useAuth();
   const { openLoginModal } = useAuthModal();
 
-  const [myProjects, setMyProjects] = useState([]);
+  const isCacheValid = user && cachedMyProjectsUserId === user._id && cachedMyProjects;
+  const [myProjects, setMyProjects] = useState(() => (isCacheValid ? cachedMyProjects : []));
   const [project, setProject] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
@@ -49,7 +54,7 @@ const ChatPage = () => {
   // Multi-user real-time presence: Array of online users in current project room
   const [onlineMembers, setOnlineMembers] = useState([]);
 
-  const [loadingProjects, setLoadingProjects] = useState(true);
+  const [loadingProjects, setLoadingProjects] = useState(() => !isCacheValid);
   const [loadingMessages, setLoadingMessages] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -81,10 +86,15 @@ const ChatPage = () => {
       setLoadingProjects(false);
       return;
     }
-    try {
+    const hasCache = cachedMyProjectsUserId === user._id && cachedMyProjects;
+    if (!hasCache) {
       setLoadingProjects(true);
+    }
+    try {
       const { data } = await getMyProjects();
       const projList = Array.isArray(data) ? data : [];
+      cachedMyProjects = projList;
+      cachedMyProjectsUserId = user._id;
       setMyProjects(projList);
 
       // Auto-navigate to first project on desktop only
@@ -92,7 +102,9 @@ const ChatPage = () => {
         navigate(`/chat/${projList[0]._id}`, { replace: true });
       }
     } catch {
-      setMyProjects([]);
+      if (!hasCache) {
+        setMyProjects([]);
+      }
     } finally {
       setLoadingProjects(false);
     }
@@ -618,7 +630,7 @@ const ChatPage = () => {
                   {/* GitHub Integration Modal Trigger */}
                   <button
                     type="button"
-                    className="header-action-btn github-header-trigger"
+                    className="github-header-trigger"
                     onClick={() => setGitModalOpen(true)}
                     title="GitHub Code Workspace & Repository"
                   >

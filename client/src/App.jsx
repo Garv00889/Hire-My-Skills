@@ -8,17 +8,49 @@ import { useGlobalScrollReveal } from './hooks/useScrollReveal';
 import HomePage from './pages/HomePage';
 import './index.css';
 
+// Route factories with prefetch capability for instant transitions
+export const routeImporters = {
+  Login: () => import('./pages/LoginPage'),
+  Signup: () => import('./pages/SignupPage'),
+  CreateProject: () => import('./pages/CreateProjectPage'),
+  Explore: () => import('./pages/ExploreProjectsPage'),
+  Chat: () => import('./pages/ChatPage'),
+  Notifications: () => import('./pages/NotificationsPage'),
+  Profile: () => import('./pages/ProfilePage'),
+  About: () => import('./pages/AboutPage'),
+  Declined: () => import('./pages/DeclinedRequestsPage'),
+  ReviewApps: () => import('./pages/ReviewApplicationsPage'),
+};
+
+export const prefetchRoute = (name) => {
+  if (routeImporters[name]) {
+    try { routeImporters[name](); } catch (_) {}
+  }
+};
+
 // Lazy-loaded consumer routes
-const LoginPage = lazy(() => import('./pages/LoginPage'));
-const SignupPage = lazy(() => import('./pages/SignupPage'));
-const CreateProjectPage = lazy(() => import('./pages/CreateProjectPage'));
-const ExploreProjectsPage = lazy(() => import('./pages/ExploreProjectsPage'));
-const ChatPage = lazy(() => import('./pages/ChatPage'));
-const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
-const ProfilePage = lazy(() => import('./pages/ProfilePage'));
-const AboutPage = lazy(() => import('./pages/AboutPage'));
-const DeclinedRequestsPage = lazy(() => import('./pages/DeclinedRequestsPage'));
-const ReviewApplicationsPage = lazy(() => import('./pages/ReviewApplicationsPage'));
+const LoginPage = lazy(routeImporters.Login);
+const SignupPage = lazy(routeImporters.Signup);
+const CreateProjectPage = lazy(routeImporters.CreateProject);
+const ExploreProjectsPage = lazy(routeImporters.Explore);
+const ChatPage = lazy(routeImporters.Chat);
+const NotificationsPage = lazy(routeImporters.Notifications);
+const ProfilePage = lazy(routeImporters.Profile);
+const AboutPage = lazy(routeImporters.About);
+const DeclinedRequestsPage = lazy(routeImporters.Declined);
+const ReviewApplicationsPage = lazy(routeImporters.ReviewApps);
+
+// Preload primary consumer routes during idle browser cycles for instantaneous click response
+if (typeof window !== 'undefined') {
+  const warmCache = () => {
+    ['Explore', 'Chat', 'Notifications', 'Profile', 'About', 'Login'].forEach(prefetchRoute);
+  };
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(warmCache, { timeout: 1500 });
+  } else {
+    setTimeout(warmCache, 800);
+  }
+}
 
 // Lazy-loaded admin routes
 const AdminLayout = lazy(() => import('./admin/layouts/AdminLayout'));
@@ -39,25 +71,23 @@ const AdminAuditLogsPage = lazy(() => import('./admin/pages/AdminAuditLogsPage')
 const AdminRolesPage = lazy(() => import('./admin/pages/AdminRolesPage'));
 const AdminSettingsPage = lazy(() => import('./admin/pages/AdminSettingsPage'));
 
-// High-performance branded PageLoader fallback
+// Ultra-lightweight top-bar PageLoader fallback that never causes layout shifts
 const PageLoader = () => (
   <div style={{
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '60vh',
+    position: 'fixed',
+    top: 0,
+    left: 0,
     width: '100%',
-    gap: '16px',
-    animation: 'hmsFadeIn 0.25s ease-out forwards',
+    height: '3px',
+    zIndex: 999999,
+    overflow: 'hidden',
+    background: 'rgba(245, 166, 35, 0.2)',
   }}>
     <div style={{
-      width: '42px',
-      height: '42px',
-      border: '3px solid rgba(245, 166, 35, 0.2)',
-      borderTopColor: '#F5A623',
-      borderRadius: '50%',
-      animation: 'spin 0.7s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+      width: '100%',
+      height: '100%',
+      background: 'linear-gradient(90deg, transparent, #F5A623, #D4891A, transparent)',
+      animation: 'hmsTopBarProgress 0.75s ease-in-out infinite',
     }} />
   </div>
 );

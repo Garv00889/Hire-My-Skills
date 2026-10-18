@@ -2,7 +2,8 @@
   min-height: 100vh;
   background: var(--bg);
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: visible;
 }
 
 /* --- Background Glowing Blurred Circles Effect --- */
@@ -93,9 +94,18 @@
 
 .home-cta {
   display: flex;
+  border-radius: 24px;
   gap: 16px;
   justify-content: center;
   flex-wrap: wrap;
+}
+
+#btn-create-project {
+  border-radius: 30px;
+}
+
+#btn-explore-projects {
+  border-radius: 30px;
 }
 
 /* --- Buttons Styling --- */
@@ -277,7 +287,8 @@
     max-width: 320px;
   }
 
-  .cta-primary, .cta-secondary {
+  .cta-primary,
+  .cta-secondary {
     width: 100%;
     padding: 14px 20px;
     font-size: 14px;

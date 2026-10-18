@@ -64,49 +64,62 @@ export const useGlobalScrollReveal = () => {
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    const revealElements = () => {
+    if (!('IntersectionObserver' in window) || reducedMotion) {
+      document.querySelectorAll('.reveal-on-scroll, .reveal-fade-in, .reveal-scale-in')
+        .forEach((el) => el.classList.add('is-revealed'));
+      return;
+    }
+
+    // Single persistent observer instance for all scroll-reveal elements
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-revealed');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.01, rootMargin: '0px 0px 80px 0px' }
+    );
+
+    const observeNewElements = () => {
       const targets = document.querySelectorAll(
-        '.reveal-on-scroll:not(.is-revealed), .reveal-fade-in:not(.is-revealed), .reveal-scale-in:not(.is-revealed)'
+        '.reveal-on-scroll:not(.is-revealed):not([data-observed]), .reveal-fade-in:not(.is-revealed):not([data-observed]), .reveal-scale-in:not(.is-revealed):not([data-observed])'
       );
-
-      if (targets.length === 0) return;
-
-      if (!('IntersectionObserver' in window) || reducedMotion) {
-        targets.forEach((el) => el.classList.add('is-revealed'));
-        return;
-      }
-
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              entry.target.classList.add('is-revealed');
-              observer.unobserve(entry.target);
-            }
-          });
-        },
-        { threshold: 0.1, rootMargin: '0px 0px -30px 0px' }
-      );
-
-      targets.forEach((target) => observer.observe(target));
-
-      return observer;
+      targets.forEach((target) => {
+        target.setAttribute('data-observed', '1');
+        observer.observe(target);
+      });
     };
 
-    const initialObserver = revealElements();
+    observeNewElements();
 
-    // Observe dynamic DOM injections (e.g. async project lists, lazy-loaded components)
+    // Safety fallback: ensure any element not yet revealed becomes visible after 1s
+    const safetyTimer = setTimeout(() => {
+      document.querySelectorAll(
+        '.reveal-on-scroll:not(.is-revealed), .reveal-fade-in:not(.is-revealed), .reveal-scale-in:not(.is-revealed)'
+      ).forEach((el) => {
+        el.classList.add('is-revealed');
+      });
+    }, 1000);
+
+    // Debounce mutation monitoring with requestAnimationFrame to prevent DOM thrashing
+    let rafId = null;
     let mutationObserver = null;
     if ('MutationObserver' in window) {
       mutationObserver = new MutationObserver(() => {
-        revealElements();
+        if (rafId) cancelAnimationFrame(rafId);
+        rafId = requestAnimationFrame(observeNewElements);
       });
       mutationObserver.observe(document.body, { childList: true, subtree: true });
     }
 
     return () => {
-      if (initialObserver) initialObserver.disconnect();
+      observer.disconnect();
+      clearTimeout(safetyTimer);
       if (mutationObserver) mutationObserver.disconnect();
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, []);
 };

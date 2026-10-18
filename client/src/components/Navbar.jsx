@@ -4,6 +4,8 @@ import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
 import { useAuthModal } from '../context/AuthModalContext';
+import { prefetchRoute } from '../App';
+import BrandLogo from './BrandLogo';
 import './Navbar.css';
 
 // Navbar reads unread count from global NotificationContext — no prop needed
@@ -21,7 +23,7 @@ const Navbar = () => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -81,24 +83,26 @@ const Navbar = () => {
     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
 
       {/* Logo */}
-      <Link to="/home" className="nav-logo">
-        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-          <rect x="2" y="2" width="12" height="12" rx="3" fill="#F5A623" />
-          <rect x="18" y="2" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5" />
-          <rect x="2" y="18" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5" />
-          <rect x="18" y="18" width="12" height="12" rx="3" fill="#F5A623" />
-        </svg>
+      <Link to="/home" className="nav-logo" onMouseEnter={() => prefetchRoute('Explore')}>
+        <BrandLogo size={28} />
         <span>HireMySkills</span>
       </Link>
 
       {/* Center Navigation Pills */}
       <div className="nav-center" role="navigation">
-        <Link id="nav-home" to="/home" className={`nav-pill ${isActive('/home') ? 'active' : ''}`} title="Home">
+        <Link id="nav-home" to="/home" className={`nav-pill ${isActive('/home') ? 'active' : ''}`} title="Home" onMouseEnter={() => prefetchRoute('Explore')}>
           <Home size={18} />
         </Link>
 
         {/* Explore Projects */}
-        <Link id="nav-explore" to="/explore" className={`nav-pill ${isActive('/explore') ? 'active' : ''}`} title="Explore Projects">
+        <Link
+          id="nav-explore"
+          to="/explore"
+          className={`nav-pill ${isActive('/explore') ? 'active' : ''}`}
+          title="Explore Projects"
+          onMouseEnter={() => prefetchRoute('Explore')}
+          onTouchStart={() => prefetchRoute('Explore')}
+        >
           <Compass size={18} />
         </Link>
 
@@ -108,6 +112,8 @@ const Navbar = () => {
           to="/notifications"
           className={`nav-pill ${isActive('/notifications') ? 'active' : ''}`}
           title="Notifications"
+          onMouseEnter={() => prefetchRoute('Notifications')}
+          onTouchStart={() => prefetchRoute('Notifications')}
           onClick={(e) => handleRestrictedClick(e, '/notifications')}
         >
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
@@ -123,26 +129,23 @@ const Navbar = () => {
           to="/chat"
           className={`nav-pill ${location.pathname.startsWith('/chat') ? 'active' : ''}`}
           title="Team Chat"
+          onMouseEnter={() => prefetchRoute('Chat')}
+          onTouchStart={() => prefetchRoute('Chat')}
           onClick={(e) => handleRestrictedClick(e, '/chat')}
         >
           <MessageSquare size={18} />
         </Link>
 
-        <a
+        <Link
           id="nav-about"
-          href="/#about"
-          className={`nav-pill ${location.hash === '#about' || location.pathname === '/about' ? 'active' : ''}`}
+          to="/about"
+          className={`nav-pill ${isActive('/about') ? 'active' : ''}`}
           title="About"
-          onClick={(e) => {
-            if (location.pathname === '/' || location.pathname === '/home') {
-              e.preventDefault();
-              document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
-              window.history.pushState(null, '', '#about');
-            }
-          }}
+          onMouseEnter={() => prefetchRoute('About')}
+          onTouchStart={() => prefetchRoute('About')}
         >
           <Info size={18} />
-        </a>
+        </Link>
       </div>
 
       {/* Right — Desktop Profile & Mobile Hamburger */}
@@ -187,10 +190,22 @@ const Navbar = () => {
                     <ShieldCheck size={15} color="#F5A623" /> Admin Portal
                   </Link>
                 )}
-                <Link to="/profile" className="dropdown-item" onClick={() => setDropOpen(false)}>
+                <Link
+                  to="/profile"
+                  className="dropdown-item"
+                  onClick={() => setDropOpen(false)}
+                  onMouseEnter={() => prefetchRoute('Profile')}
+                  onTouchStart={() => prefetchRoute('Profile')}
+                >
                   <User size={15} /> My Profile
                 </Link>
-                <Link to="/declined-requests" className="dropdown-item" onClick={() => setDropOpen(false)}>
+                <Link
+                  to="/declined-requests"
+                  className="dropdown-item"
+                  onClick={() => setDropOpen(false)}
+                  onMouseEnter={() => prefetchRoute('Declined')}
+                  onTouchStart={() => prefetchRoute('Declined')}
+                >
                   <UserX size={15} /> Declined Requests (7-Day)
                 </Link>
                 <button id="nav-logout" className="dropdown-item danger" onClick={handleLogout}>
@@ -201,10 +216,22 @@ const Navbar = () => {
           </div>
         ) : (
           <div className="desktop-only" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Link to="/login" className="btn-secondary" style={{ padding: '8px 16px', fontSize: '13px' }}>
+            <Link
+              to="/login"
+              className="btn-secondary"
+              style={{ padding: '8px 16px', fontSize: '13px' }}
+              onMouseEnter={() => prefetchRoute('Login')}
+              onTouchStart={() => prefetchRoute('Login')}
+            >
               Log In
             </Link>
-            <Link to="/signup" className="btn-primary" style={{ padding: '8px 16px', fontSize: '13px' }}>
+            <Link
+              to="/signup"
+              className="btn-primary"
+              style={{ padding: '8px 16px', fontSize: '13px' }}
+              onMouseEnter={() => prefetchRoute('Signup')}
+              onTouchStart={() => prefetchRoute('Signup')}
+            >
               Sign Up
             </Link>
           </div>
@@ -217,6 +244,7 @@ const Navbar = () => {
             to="/notifications"
             className={`mobile-quick-bell ${isActive('/notifications') ? 'active' : ''}`}
             aria-label="Notifications"
+            onTouchStart={() => prefetchRoute('Notifications')}
             onClick={(e) => handleRestrictedClick(e, '/notifications')}
           >
             <Bell size={19} />
@@ -263,10 +291,22 @@ const Navbar = () => {
               </div>
             ) : (
               <div className="mobile-auth-prompt">
-                <Link to="/login" className="btn-primary" style={{ width: '100%' }} onClick={() => setMobileMenuOpen(false)}>
+                <Link
+                  to="/login"
+                  className="btn-primary"
+                  style={{ width: '100%' }}
+                  onTouchStart={() => prefetchRoute('Login')}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
                   Login
                 </Link>
-                <Link to="/signup" className="btn-secondary" style={{ width: '100%' }} onClick={() => setMobileMenuOpen(false)}>
+                <Link
+                  to="/signup"
+                  className="btn-secondary"
+                  style={{ width: '100%' }}
+                  onTouchStart={() => prefetchRoute('Signup')}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
                   Sign Up
                 </Link>
               </div>
@@ -281,6 +321,7 @@ const Navbar = () => {
               <Link
                 to="/home"
                 className={`mobile-nav-item ${isActive('/home') ? 'active' : ''}`}
+                onTouchStart={() => prefetchRoute('Explore')}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <div className="mobile-nav-icon"><Home size={18} /></div>
@@ -291,6 +332,7 @@ const Navbar = () => {
               <Link
                 to="/explore"
                 className={`mobile-nav-item ${isActive('/explore') ? 'active' : ''}`}
+                onTouchStart={() => prefetchRoute('Explore')}
                 onClick={() => setMobileMenuOpen(false)}
               >
                 <div className="mobile-nav-icon"><Compass size={18} /></div>
@@ -301,6 +343,7 @@ const Navbar = () => {
               <Link
                 to="/notifications"
                 className={`mobile-nav-item ${isActive('/notifications') ? 'active' : ''}`}
+                onTouchStart={() => prefetchRoute('Notifications')}
                 onClick={(e) => {
                   if (!user) {
                     handleRestrictedClick(e, '/notifications');
@@ -324,6 +367,7 @@ const Navbar = () => {
               <Link
                 to="/chat"
                 className={`mobile-nav-item ${location.pathname.startsWith('/chat') ? 'active' : ''}`}
+                onTouchStart={() => prefetchRoute('Chat')}
                 onClick={(e) => {
                   if (!user) {
                     handleRestrictedClick(e, '/chat');
@@ -337,22 +381,16 @@ const Navbar = () => {
                 <ArrowRight size={14} className="mobile-item-arrow" />
               </Link>
 
-              <a
-                href="/#about"
-                className={`mobile-nav-item ${location.hash === '#about' || location.pathname === '/about' ? 'active' : ''}`}
-                onClick={(e) => {
-                  setMobileMenuOpen(false);
-                  if (location.pathname === '/' || location.pathname === '/home') {
-                    e.preventDefault();
-                    document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
-                    window.history.pushState(null, '', '#about');
-                  }
-                }}
+              <Link
+                to="/about"
+                className={`mobile-nav-item ${isActive('/about') ? 'active' : ''}`}
+                onTouchStart={() => prefetchRoute('About')}
+                onClick={() => setMobileMenuOpen(false)}
               >
                 <div className="mobile-nav-icon"><Info size={18} /></div>
                 <span>About</span>
                 <ArrowRight size={14} className="mobile-item-arrow" />
-              </a>
+              </Link>
             </div>
 
             {/* Account & Profile Links */}
@@ -378,6 +416,7 @@ const Navbar = () => {
                   <Link
                     to="/profile"
                     className={`mobile-nav-item ${isActive('/profile') ? 'active' : ''}`}
+                    onTouchStart={() => prefetchRoute('Profile')}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="mobile-nav-icon"><User size={18} /></div>
@@ -388,6 +427,7 @@ const Navbar = () => {
                   <Link
                     to="/declined-requests"
                     className={`mobile-nav-item ${isActive('/declined-requests') ? 'active' : ''}`}
+                    onTouchStart={() => prefetchRoute('Declined')}
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <div className="mobile-nav-icon"><UserX size={18} /></div>

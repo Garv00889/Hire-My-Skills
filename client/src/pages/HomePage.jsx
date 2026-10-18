@@ -8,6 +8,7 @@ import {
 import Navbar from '../components/Navbar';
 import { useAuth } from '../context/AuthContext';
 import { useAuthModal } from '../context/AuthModalContext';
+import { prefetchRoute } from '../App';
 import './HomePage.css';
 import './AboutPage.css';
 
@@ -95,6 +96,8 @@ const HomePage = () => {
               id="btn-create-project"
               className="cta-primary btn-interactive"
               onClick={handleCreateProject}
+              onMouseEnter={() => prefetchRoute('CreateProject')}
+              onTouchStart={() => prefetchRoute('CreateProject')}
             >
               <Sparkles size={18} />
               Create Project
@@ -105,6 +108,8 @@ const HomePage = () => {
               id="btn-explore-projects"
               className="cta-secondary btn-interactive"
               onClick={handleExploreProjects}
+              onMouseEnter={() => prefetchRoute('Explore')}
+              onTouchStart={() => prefetchRoute('Explore')}
             >
               <Search size={18} />
               Explore Projects
@@ -190,8 +195,8 @@ const HomePage = () => {
         </div>
 
         {/* How It Works Workflow */}
-        <div className="workflow-section reveal-on-scroll">
-          <div className="section-header-center">
+        <div className="workflow-section">
+          <div className="section-header-center reveal-on-scroll">
             <span className="section-chip">Seamless 6-Step Journey</span>
             <h2>How HireMySkills Works</h2>
             <p>From idea to team formation and Git commit code execution.</p>
@@ -222,8 +227,8 @@ const HomePage = () => {
         </div>
 
         {/* Key Features Grid */}
-        <div className="features-section reveal-on-scroll">
-          <div className="section-header-center">
+        <div className="features-section">
+          <div className="section-header-center reveal-on-scroll">
             <span className="section-chip">Platform Capabilities</span>
             <h2>Key Platform Features</h2>
           </div>

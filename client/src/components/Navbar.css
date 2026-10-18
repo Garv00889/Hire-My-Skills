@@ -13,7 +13,7 @@
   backdrop-filter: blur(24px) saturate(180%);
   -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.7);
-  border-radius: 24px;
+  border-radius: 56px;
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8);
   z-index: 9999;
   transition:
@@ -39,12 +39,14 @@
   transition: .25s ease;
 }
 
+.nav-logo img,
 .nav-logo svg {
-  transition: .46s ease;
+  transition: transform .25s ease;
 }
 
+.nav-logo:hover img,
 .nav-logo:hover svg {
-  transform: rotate(-135deg) scale(1.03);
+  transform: scale(1.08);
 }
 
 .nav-center {
@@ -254,6 +256,7 @@
     gap: 8px;
   }
 
+  .nav-logo img,
   .nav-logo svg {
     width: 24px;
     height: 24px;
@@ -326,8 +329,13 @@
   }
 
   @keyframes backdropFade {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
   }
 
   /* Mobile Drawer Sheet */
@@ -355,6 +363,7 @@
       opacity: 0;
       transform: translateY(-12px) scale(0.98);
     }
+
     to {
       opacity: 1;
       transform: translateY(0) scale(1);
@@ -553,6 +562,7 @@
     gap: 6px;
   }
 
+  .nav-logo img,
   .nav-logo svg {
     width: 20px;
     height: 20px;

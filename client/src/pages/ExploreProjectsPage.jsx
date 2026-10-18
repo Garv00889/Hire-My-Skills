@@ -25,14 +25,19 @@ const SKILLS_LIST = [
   'Firebase'
 ];
 
+// In-memory SWR cache for instant exploration transitions
+let cachedExploreProjects = null;
+
 const ExploreProjectsPage = () => {
   const { user } = useAuth();
   const { openLoginModal } = useAuthModal();
 
-  const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState(() => cachedExploreProjects || []);
+  const [loading, setLoading] = useState(() => !cachedExploreProjects);
   const [search, setSearch] = useState('');
-  const [selectedProject, setSelectedProject] = useState(null);
+  const [selectedProject, setSelectedProject] = useState(() => (
+    cachedExploreProjects && cachedExploreProjects.length > 0 ? cachedExploreProjects[0] : null
+  ));
   const [fullDetailsProject, setFullDetailsProject] = useState(null);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
@@ -49,7 +54,10 @@ const ExploreProjectsPage = () => {
   });
 
   const fetchProjects = useCallback(async () => {
-    setLoading(true);
+    const isFiltered = Boolean(search.trim() || filters.level !== 'All' || filters.type !== 'All');
+    if (isFiltered || !cachedExploreProjects) {
+      setLoading(true);
+    }
     try {
       const params = { limit: 50 };
       if (search.trim()) params.search = search.trim();
@@ -60,15 +68,21 @@ const ExploreProjectsPage = () => {
       const projectData = response?.data?.projects || [];
       setProjects(projectData);
 
+      if (!isFiltered) {
+        cachedExploreProjects = projectData;
+      }
+
       if (projectData.length > 0) {
-        setSelectedProject(projectData[0]);
+        setSelectedProject((prev) => (prev ? (projectData.find((p) => p._id === prev._id) || projectData[0]) : projectData[0]));
       } else {
         setSelectedProject(null);
       }
     } catch (err) {
-      toast.error(err?.response?.data?.message || 'Failed to fetch projects');
-      setProjects([]);
-      setSelectedProject(null);
+      if (!cachedExploreProjects) {
+        toast.error(err?.response?.data?.message || 'Failed to fetch projects');
+        setProjects([]);
+        setSelectedProject(null);
+      }
     } finally {
       setLoading(false);
     }

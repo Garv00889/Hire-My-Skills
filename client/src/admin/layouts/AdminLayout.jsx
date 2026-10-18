@@ -29,6 +29,7 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { seedAdminData } from '../services/adminApi';
 import toast from 'react-hot-toast';
+import BrandLogo from '../../components/BrandLogo';
 import './AdminLayout.css';
 
 const AdminLayout = () => {
@@ -147,12 +148,7 @@ const AdminLayout = () => {
       <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
         <div className="admin-sidebar-header">
           <Link to="/admin" className="admin-brand">
-            <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
-              <rect x="2" y="2" width="12" height="12" rx="3" fill="#F5A623" />
-              <rect x="18" y="2" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5" />
-              <rect x="2" y="18" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5" />
-              <rect x="18" y="18" width="12" height="12" rx="3" fill="#F5A623" />
-            </svg>
+            <BrandLogo size={28} />
             <div className="admin-brand-text">
               <span className="admin-brand-name">HireMySkills</span>
               <span className="admin-portal-badge">ADMIN PORTAL</span>

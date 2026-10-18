@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileText, Wrench, Users, AlignLeft, Upload, IndianRupee, BarChart2, Calendar, Grid, ArrowRight, X, Sparkles, Lock } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import BrandLogo from '../components/BrandLogo';
 import { createProject } from '../services/api';
 import toast from 'react-hot-toast';
 import './CreateProjectPage.css';
@@ -86,12 +87,7 @@ const CreateProjectPage = () => {
           <div className="create-visual">
             <div className="create-orb" />
             <div className="create-cube">
-              <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                <rect x="10" y="10" width="26" height="26" rx="6" fill="#F5A623" opacity="0.3" />
-                <rect x="44" y="10" width="26" height="26" rx="6" fill="#F5A623" opacity="0.6" />
-                <rect x="10" y="44" width="26" height="26" rx="6" fill="#F5A623" opacity="0.6" />
-                <rect x="44" y="44" width="26" height="26" rx="6" fill="#F5A623" />
-              </svg>
+              <BrandLogo size={64} />
             </div>
           </div>
         </div>

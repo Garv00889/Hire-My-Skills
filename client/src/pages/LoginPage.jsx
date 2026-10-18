@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, ArrowRight, X, KeyRound, CheckCircle2 } from 'lucide-react';
 import { loginUser, getMeWithToken } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import BrandLogo from '../components/BrandLogo';
 import toast from 'react-hot-toast';
 import './LoginPage.css';
 
@@ -109,12 +110,7 @@ const LoginPage = ({ showForgotModalInitial = false }) => {
         <div className="login-top-logo-block anim-stagger-1">
           <Link to="/" className="brand-logo-link" aria-label="HireMySkills Home">
             <div className="brand-logo-badge">
-              <svg width="34" height="34" viewBox="0 0 32 32" fill="none">
-                <rect x="2" y="2" width="12" height="12" rx="3" fill="#F5A623" />
-                <rect x="18" y="2" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5" />
-                <rect x="2" y="18" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5" />
-                <rect x="18" y="18" width="12" height="12" rx="3" fill="#F5A623" />
-              </svg>
+              <BrandLogo size={34} />
             </div>
             <span className="brand-logo-name">HireMySkills</span>
           </Link>
@@ -145,12 +141,7 @@ const LoginPage = ({ showForgotModalInitial = false }) => {
           <div className="mobile-brand-row">
             <Link to="/" className="brand-logo-link" aria-label="HireMySkills Home">
               <div className="brand-logo-badge">
-                <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-                  <rect x="2" y="2" width="12" height="12" rx="3" fill="#F5A623" />
-                  <rect x="18" y="2" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5" />
-                  <rect x="2" y="18" width="12" height="12" rx="3" fill="#F5A623" opacity="0.5" />
-                  <rect x="18" y="18" width="12" height="12" rx="3" fill="#F5A623" />
-                </svg>
+                <BrandLogo size={28} />
               </div>
               <span className="brand-logo-name">HireMySkills</span>
             </Link>
